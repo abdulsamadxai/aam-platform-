@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
 import { JobForm } from "@/components/admin/content/JobForm";
-import { JobInput } from "@/lib/validations";
+import { JobListingInput as JobInput } from "@/lib/validations";
 import { toast } from "react-hot-toast";
 
 export default function NewJobPage() {

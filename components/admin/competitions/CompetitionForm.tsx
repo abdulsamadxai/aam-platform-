@@ -37,7 +37,7 @@ export function CompetitionForm({
 }: CompetitionFormProps) {
     const form = useForm<CompetitionInput>({
         resolver: zodResolver(competitionSchema),
-        default_values: initialData || {
+        defaultValues: initialData || {
             title: "",
             description: "",
             prize_pool: "",

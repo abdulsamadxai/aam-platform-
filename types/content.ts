@@ -34,9 +34,11 @@ export interface JobListing {
     id: string
     title: string
     company_name: string
+    company?: string
     description: string
     deadline: string
     is_active: boolean
+    type?: string
     created_at: string
     updated_at: string
     deleted_at?: string
@@ -102,6 +104,7 @@ export interface Competition {
     description: string
     brief_file_url?: string
     submission_url?: string
+    prize_details?: string
     deadline: string
     registration_deadline: string
     prize_pool: string
