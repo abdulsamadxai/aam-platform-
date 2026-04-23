@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
 import { TrainingForm } from "@/components/admin/content/TrainingForm";
-import { TrainingInput } from "@/lib/validations";
+import { TrainingProgrammeInput as TrainingInput } from "@/lib/validations";
 import { toast } from "react-hot-toast";
 
 export default function NewTrainingPage() {
