@@ -36,7 +36,7 @@ export function RichTextEditor({
                     style={{ borderRadius: 0 }}
                 />
             </div>
-            <p className="text-[9px] font-bold text-mono-400 uppercase tracking-widest">
+            <p className="text-[9px] font-bold text-aam-grey uppercase tracking-widest">
                 USE MARKDOWN PROTOCOL FOR INSTITUTIONAL FORMATTING.
             </p>
         </div>

@@ -42,14 +42,14 @@ export function AdminPageHeader({
                     <h1 className="text-5xl md:text-8xl font-black uppercase tracking-tighter leading-none whitespace-pre-line">
                         {title}
                     </h1>
-                    <p className="text-sm font-black uppercase tracking-[0.4em] text-mono-400">
+                    <p className="text-sm font-black uppercase tracking-[0.4em] text-neutral-400">
                         {subtitle}
                     </p>
                 </div>
 
                 <div className="flex gap-4">
                     {actionHref && (
-                        <Button asChild className="h-16 px-10 bg-black text-white hover:bg-mono-800 rounded-none font-black uppercase tracking-widest text-[10px] border-2 border-black transition-all">
+                        <Button asChild className="h-16 px-10 bg-black text-white hover:bg-neutral-800 rounded-none font-black uppercase tracking-widest text-[10px] border-2 border-black transition-all">
                             <Link href={actionHref} className="flex items-center gap-3">
                                 {actionIcon}
                                 {actionLabel}

@@ -1,42 +1,29 @@
-import { redirect } from "next/navigation";
-
-type MockChain = {
-    select: () => MockChain;
-    eq: () => MockChain;
-    is: () => MockChain;
-    order: () => MockChain;
-    single: () => Promise<{ data: null; error: null }>;
-    insert: () => MockChain;
-    update: () => MockChain;
-    delete: () => MockChain;
-    then: (resolve: (v: unknown) => unknown) => Promise<unknown>;
-};
-
-const mockChain = (): MockChain => ({
-    select: () => mockChain(),
-    eq: () => mockChain(),
-    is: () => mockChain(),
-    order: () => mockChain(),
-    single: () => Promise.resolve({ data: null, error: null }),
-    insert: () => mockChain(),
-    update: () => mockChain(),
-    delete: () => mockChain(),
-    then: (resolve: (v: unknown) => unknown) => Promise.resolve({ data: [], error: null }).then(resolve),
-});
+import { createServerClient } from '@supabase/ssr'
+import { cookies } from 'next/headers'
 
 export async function createClient() {
-    return {
-        auth: {
-            getUser: async () => ({
-                data: {
-                    user: {
-                        id: "mock-admin",
-                        app_metadata: { role: "admin" },
-                    },
-                },
-                error: null,
-            }),
+  const cookieStore = await cookies()
+
+  return createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      cookies: {
+        getAll() {
+          return cookieStore.getAll()
         },
-        from: (_table: string) => mockChain(),
-    };
+        setAll(cookiesToSet) {
+          try {
+            cookiesToSet.forEach(({ name, value, options }) =>
+              cookieStore.set(name, value, options)
+            )
+          } catch {
+            // The `setAll` method was called from a Server Component.
+            // This can be ignored if you have middleware refreshing
+            // user sessions.
+          }
+        },
+      },
+    }
+  )
 }

@@ -52,14 +52,14 @@ export default function AdminNewThreadPage() {
 
       <div className="space-y-4 border-l-8 border-white/20 pl-8">
         <h1 className="text-5xl md:text-7xl font-black text-white uppercase tracking-tighter leading-none">Initiate <br /> Official Thread</h1>
-        <p className="text-lg font-medium text-mono-400 leading-tight">Transmit official technical queries, announcements, or regulatory discussions to the member network.</p>
+        <p className="text-lg font-medium text-neutral-400 leading-tight">Transmit official technical queries, announcements, or regulatory discussions to the member network.</p>
       </div>
 
       <form onSubmit={handleSubmit}>
         <Card className="border-4 border-white/20 rounded-none shadow-none bg-transparent overflow-hidden">
           <CardHeader className="p-10 border-b-2 border-white/20 bg-white/5">
             <CardTitle className="text-xs text-white font-black uppercase tracking-[0.4em]">THREAD CONFIGURATION</CardTitle>
-            <CardDescription className="text-[10px] font-bold text-mono-400 uppercase tracking-widest mt-2">Define administrative parameters for the discourse</CardDescription>
+            <CardDescription className="text-[10px] font-bold text-neutral-400 uppercase tracking-widest mt-2">Define administrative parameters for the discourse</CardDescription>
           </CardHeader>
           <CardContent className="p-10 space-y-10">
             <div className="space-y-3">
@@ -67,7 +67,7 @@ export default function AdminNewThreadPage() {
               <Input
                 id="title"
                 placeholder="E.G. OFFICIAL CONSULTATION ON NEW REGULATION..."
-                className="border-2 border-white/20 bg-transparent text-white rounded-none h-14 px-6 font-bold uppercase tracking-widest text-xs focus-visible:ring-0 placeholder:text-mono-500"
+                className="border-2 border-white/20 bg-transparent text-white rounded-none h-14 px-6 font-bold uppercase tracking-widest text-xs focus-visible:ring-0 placeholder:text-neutral-500"
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
                 required
@@ -95,7 +95,7 @@ export default function AdminNewThreadPage() {
               <Textarea
                 id="body"
                 placeholder="PROVIDE DETAILED ADMINISTRATIVE CONTEXT..."
-                className="min-h-[300px] border-2 border-white/20 bg-transparent text-white rounded-none px-6 py-6 font-bold uppercase tracking-widest text-xs focus-visible:ring-0 placeholder:text-mono-500 resize-none"
+                className="min-h-[300px] border-2 border-white/20 bg-transparent text-white rounded-none px-6 py-6 font-bold uppercase tracking-widest text-xs focus-visible:ring-0 placeholder:text-neutral-500 resize-none"
                 value={body}
                 onChange={(e) => setBody(e.target.value)}
                 required
@@ -109,7 +109,7 @@ export default function AdminNewThreadPage() {
             <Button
               type="submit"
               disabled={loading || !title || !body}
-              className="h-16 px-12 bg-white text-black hover:bg-mono-200 rounded-none font-black uppercase tracking-widest text-[10px] border-2 border-white transition-all group min-w-[240px]"
+              className="h-16 px-12 bg-white text-black hover:bg-neutral-200 rounded-none font-black uppercase tracking-widest text-[10px] border-2 border-white transition-all group min-w-[240px]"
             >
               {loading ? (
                 <Loader2 className="h-5 w-5 animate-spin" />

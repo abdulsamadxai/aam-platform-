@@ -1,11 +1,11 @@
 "use client";
 
-import { notFound } from "next/navigation";
+import { notFound, useRouter } from "next/navigation";
 import Link from "next/link";
-import { ArrowLeft, Clock, User } from "lucide-react";
-import { getNewsPostBySlug, getAllNews, saveNews } from "@/lib/mock-data";
+import { ArrowLeft, Clock, User, Loader2 } from "lucide-react";
+import { getNewsPostBySlug, saveNews } from "@/lib/mock-data";
 import { format } from "date-fns";
-import { useState, useEffect } from "react";
+import { useState, useEffect, use } from "react";
 import { EditableBlock } from "@/components/admin/EditableBlock";
 import { EditModal } from "@/components/admin/EditModal";
 import { ConfirmDelete } from "@/components/admin/ConfirmDelete";
@@ -13,12 +13,13 @@ import { NewsPostForm } from "@/components/admin/forms/NewsPostForm";
 import { useAdmin } from "@/lib/admin-context";
 import { toast } from "react-hot-toast";
 import { NewsPost } from "@/types";
-import { use } from "react";
+import { createClient } from "@/lib/supabase/client";
 
 export default function NewsArticlePage({ params }: { params: Promise<{ slug: string }> }) {
     const { isEditMode } = useAdmin();
     const resolvedParams = use(params);
     const slug = resolvedParams.slug;
+    const router = useRouter();
     const [post, setPost] = useState<NewsPost | null>(null);
     const [isLoading, setIsLoading] = useState(true);
 
@@ -27,14 +28,27 @@ export default function NewsArticlePage({ params }: { params: Promise<{ slug: st
     const [isDeleting, setIsDeleting] = useState(false);
 
     useEffect(() => {
-        const data = getNewsPostBySlug(slug);
-        if (data) {
-            setPost(data);
-        }
-        setIsLoading(false);
+        fetchPost();
     }, [slug]);
 
-    if (isLoading) return <div className="min-h-screen bg-black" />;
+    async function fetchPost() {
+        setIsLoading(true);
+        try {
+            const data = await getNewsPostBySlug(slug);
+            setPost(data);
+        } catch (error) {
+            console.error(error);
+        } finally {
+            setIsLoading(false);
+        }
+    }
+
+    if (isLoading) return (
+        <div className="min-h-screen bg-black flex items-center justify-center">
+            <Loader2 className="w-8 h-8 animate-spin text-white/20" />
+        </div>
+    );
+    
     if (!post) {
         notFound();
     }
@@ -104,17 +118,15 @@ export default function NewsArticlePage({ params }: { params: Promise<{ slug: st
                 <NewsPostForm
                     initialData={post}
                     onCancel={() => setIsEditing(false)}
-                    onSubmit={(data) => {
-                        const updatedPost = { ...post, ...data } as NewsPost;
-                        setPost(updatedPost);
-                        
-                        // Persist the change
-                        const allNews = getAllNews();
-                        const updatedAllNews = allNews.map(n => n.id === post.id ? updatedPost : n);
-                        saveNews(updatedAllNews);
-                        
-                        setIsEditing(false);
-                        toast.success("Article updated");
+                    onSubmit={async (data) => {
+                        try {
+                            await saveNews({ ...post, ...data });
+                            setIsEditing(false);
+                            toast.success("Article updated");
+                            fetchPost();
+                        } catch (error) {
+                            toast.error("Failed to update article");
+                        }
                     }}
                 />
             </EditModal>
@@ -123,15 +135,16 @@ export default function NewsArticlePage({ params }: { params: Promise<{ slug: st
                 open={isDeleting}
                 itemName={post.title}
                 onClose={() => setIsDeleting(false)}
-                onConfirm={() => {
-                    // Persist the deletion
-                    const allNews = getAllNews();
-                    const updatedAllNews = allNews.filter(n => n.id !== post.id);
-                    saveNews(updatedAllNews);
-                    
-                    setIsDeleting(false);
-                    toast.success("Article deleted (redirecting...)");
-                    setTimeout(() => window.location.href = '/news', 1500);
+                onConfirm={async () => {
+                    try {
+                        const supabase = createClient();
+                        await supabase.from('news_posts').update({ deleted_at: new Date().toISOString() }).eq('id', post.id);
+                        setIsDeleting(false);
+                        toast.success("Article deleted (redirecting...)");
+                        setTimeout(() => router.push('/news'), 1500);
+                    } catch (error) {
+                        toast.error("Failed to delete article");
+                    }
                 }}
             />
         </main>

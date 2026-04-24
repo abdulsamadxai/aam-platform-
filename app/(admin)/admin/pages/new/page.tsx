@@ -127,7 +127,7 @@ export default function NewPageCreator() {
                         <Button
                             type="submit"
                             disabled={isLoading}
-                            className="h-20 w-full bg-black text-white hover:bg-mono-800 rounded-none font-black uppercase tracking-[0.2em] text-xs border-2 border-black transition-all pt-1"
+                            className="h-20 w-full bg-black text-white hover:bg-neutral-800 rounded-none font-black uppercase tracking-[0.2em] text-xs border-2 border-black transition-all pt-1"
                         >
                             {isLoading ? <Loader2 className="mr-3 h-5 w-5 animate-spin" /> : <Save className="mr-3 h-5 w-5" />}
                             EXECUTE DEPLOYMENT

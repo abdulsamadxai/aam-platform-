@@ -31,14 +31,14 @@ export function EventForm({
 }: EventFormProps) {
     const form = useForm<EventInput>({
         resolver: zodResolver(eventSchema),
-        defaultValues: initialData || {
+        defaultValues: initialData ?? {
             title: "",
             description: "",
             location: "",
             start_at: new Date().toISOString().split('.')[0] + 'Z',
             end_at: null,
             is_published: false
-        } as any
+        }
     });
 
     return (
@@ -98,7 +98,17 @@ export function EventForm({
                                                 className="border-4 border-black rounded-none h-16 font-black uppercase text-xs focus-visible:ring-0"
                                                 {...field}
                                                 value={field.value ? field.value.slice(0, 16) : ""}
-                                                onChange={(e) => field.onChange(new Date(e.target.value).toISOString())}
+                                                onChange={(e) => {
+                                                    const val = e.target.value;
+                                                    if (!val) {
+                                                        field.onChange(null);
+                                                        return;
+                                                    }
+                                                    const date = new Date(val);
+                                                    if (!isNaN(date.getTime())) {
+                                                        field.onChange(date.toISOString());
+                                                    }
+                                                }}
                                             />
                                         </FormControl>
                                         <FormMessage />
@@ -118,7 +128,17 @@ export function EventForm({
                                                 className="border-4 border-black rounded-none h-16 font-black uppercase text-xs focus-visible:ring-0"
                                                 {...field}
                                                 value={field.value ? field.value.slice(0, 16) : ""}
-                                                onChange={(e) => field.onChange(e.target.value ? new Date(e.target.value).toISOString() : null)}
+                                                onChange={(e) => {
+                                                    const val = e.target.value;
+                                                    if (!val) {
+                                                        field.onChange(null);
+                                                        return;
+                                                    }
+                                                    const date = new Date(val);
+                                                    if (!isNaN(date.getTime())) {
+                                                        field.onChange(date.toISOString());
+                                                    }
+                                                }}
                                             />
                                         </FormControl>
                                         <FormMessage />
@@ -167,7 +187,7 @@ export function EventForm({
                     <Button
                         type="submit"
                         disabled={isLoading}
-                        className="h-20 flex-1 bg-black text-white hover:bg-mono-800 rounded-none font-black uppercase tracking-[0.2em] text-xs border-2 border-black transition-all"
+                        className="h-20 flex-1 bg-black text-white hover:bg-neutral-800 rounded-none font-black uppercase tracking-[0.2em] text-xs border-2 border-black transition-all"
                     >
                         {isLoading ? <Loader2 className="mr-3 h-5 w-5 animate-spin" /> : <Save className="mr-3 h-5 w-5" />}
                         REGISTRY SYNCHRONIZATION

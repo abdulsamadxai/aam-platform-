@@ -10,7 +10,8 @@ export default async function ForumThreadPage({ params }: { params: Promise<{ id
     // Mock user
     const user = { id: 'mock-user-1', email: 'member@test.am', user_metadata: { full_name: 'Mock Member' } };
 
-    const thread = getAllThreads().find(t => t.id === id);
+    const threads = await getAllThreads();
+    const thread = threads.find(t => t.id === id);
 
     if (!thread) {
         notFound();

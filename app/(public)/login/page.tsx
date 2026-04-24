@@ -22,13 +22,32 @@ export default function LoginPage() {
     setLoading(true);
     setMessage(null);
 
-    // Simulated login
-    if (email === "admin@aamaldives.mv" && password === "admin") {
-      login();
-      router.push("/admin");
-    } else {
-      // NOTE: Using a generic route since this is mock logic
-      router.push("/member/dashboard");
+    const supabase = (await import("@/lib/supabase/client")).createClient();
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
+
+    if (error) {
+      setMessage({ type: 'error', text: error.message });
+      setLoading(false);
+      return;
+    }
+
+    if (data.user) {
+      // Check role to redirect appropriately
+      const { data: profile } = await supabase
+        .from('members')
+        .select('role')
+        .eq('id', data.user.id)
+        .single();
+
+      if (profile?.role === 'admin') {
+        login(); // Still sync with local admin context if needed
+        router.push("/admin");
+      } else {
+        router.push("/member/dashboard");
+      }
     }
     setLoading(false);
   };
@@ -88,10 +107,6 @@ export default function LoginPage() {
               <Lock className="absolute right-5 top-1/2 -translate-y-1/2 h-5 w-5 text-white/40 group-focus-within:text-white transition-colors" />
             </div>
 
-            <div className="text-[11px] text-white/40 mt-1 mb-2 px-2 italic">
-              Admin Access: admin@aamaldives.mv / admin
-            </div>
-
             {/* Remember Me & Forgot Password */}
             <div className="flex items-center justify-between px-2 text-[13px]">
               <div className="flex items-center space-x-2 group cursor-pointer">
@@ -104,12 +119,9 @@ export default function LoginPage() {
                   Remember me
                 </Label>
               </div>
-              <Link
-                href="/forgot-password"
-                className="text-white/80 hover:text-white transition-colors font-normal"
-              >
+              <span className="text-white/30 cursor-not-allowed font-normal select-none">
                 Forgot Password?
-              </Link>
+              </span>
             </div>
 
             {/* Log In Button */}

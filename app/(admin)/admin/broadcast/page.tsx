@@ -15,7 +15,11 @@ export default function AdminBroadcast() {
     const [history, setHistory] = useState<Broadcast[]>([]);
 
     useEffect(() => {
-        setHistory(getAllBroadcasts().slice(0, 5));
+        async function fetchHistory() {
+            const data = await getAllBroadcasts();
+            setHistory(data.slice(0, 5));
+        }
+        fetchHistory();
     }, []);
 
     const handleBroadcast = (e: React.FormEvent) => {

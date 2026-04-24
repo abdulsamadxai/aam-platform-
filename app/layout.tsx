@@ -3,6 +3,8 @@ import { Inter, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
+import { AdminProvider } from "@/lib/admin-context";
+import { AdminLayoutWrapper } from "@/components/admin/AdminLayoutWrapper";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -18,9 +20,6 @@ export const metadata: Metadata = {
   title: "Architects Association Maldives",
   description: "Official platform for the Architects Association Maldives (AAM).",
 };
-
-import { AdminProvider } from "@/lib/admin-context";
-import { AdminLayoutWrapper } from "@/components/admin/AdminLayoutWrapper";
 
 export default function RootLayout({
   children,

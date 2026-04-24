@@ -78,7 +78,7 @@ export default function ConstitutionPage() {
                                     <h3 className="text-2xl font-black uppercase tracking-widest border-b-2 border-white/10 pb-4 inline-block group-hover:border-white/40 transition-colors">
                                         {article.heading}
                                     </h3>
-                                    <p className="text-xl text-mono-400 font-medium leading-tight whitespace-pre-line group-hover:text-mono-300 transition-colors">
+                                    <p className="text-xl text-neutral-400 font-medium leading-tight whitespace-pre-line group-hover:text-neutral-300 transition-colors">
                                         {article.body}
                                     </p>
                                 </div>
@@ -90,7 +90,7 @@ export default function ConstitutionPage() {
                         <div className="absolute top-0 left-0 w-full h-full opacity-5 bg-[repeating-linear-gradient(45deg,#ffffff,#ffffff_10px,transparent_10px,transparent_20px)]" />
                         <div className="space-y-4 text-center md:text-left relative z-10">
                             <h3 className="text-2xl font-black uppercase tracking-tighter">OFFICIAL DOSSIER</h3>
-                            <p className="text-mono-500 font-bold uppercase text-[10px] tracking-[0.3em]">Latest Version Ratified March 2025</p>
+                            <p className="text-neutral-500 font-bold uppercase text-[10px] tracking-[0.3em]">Latest Version Ratified March 2025</p>
                         </div>
                         <button className="bg-white text-black font-black uppercase tracking-widest text-xs py-6 px-12 border-2 border-white hover:bg-black hover:text-white transition-all relative z-10 flex items-center gap-4">
                             <Download className="w-5 h-5" />

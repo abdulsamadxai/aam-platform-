@@ -1,28 +1,31 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { MOCK_SITE_PAGES } from "@/lib/mock-data";
+import { getAllPages } from "@/lib/mock-data";
 import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
 import { ContentTable } from "@/components/admin/ContentTable";
 import { FileText, Clock, ExternalLink } from "lucide-react";
-
-interface SitePage {
-    slug: string;
-    title: string;
-    updated_at: string;
-}
+import { SitePage } from "@/types";
 
 export default function PagesManagerPage() {
     const [pages, setPages] = useState<SitePage[]>([]);
     const [loading, setLoading] = useState(true);
+    
     useEffect(() => {
-        setPages(Object.values(MOCK_SITE_PAGES).map(p => ({
-            slug: p.slug,
-            title: p.title,
-            updated_at: new Date().toISOString()
-        })));
-        setLoading(false);
+        fetchPages();
     }, []);
+
+    async function fetchPages() {
+        setLoading(true);
+        try {
+            const data = await getAllPages();
+            setPages(data);
+        } catch (error) {
+            console.error(error);
+        } finally {
+            setLoading(false);
+        }
+    }
 
     const columns = [
         {
@@ -35,7 +38,7 @@ export default function PagesManagerPage() {
                     </div>
                     <div>
                         <p className="text-sm font-black uppercase tracking-tight">{row.title}</p>
-                        <p className="text-[9px] font-bold text-mono-400 uppercase tracking-widest">/{row.slug}</p>
+                        <p className="text-[9px] font-bold text-neutral-400 uppercase tracking-widest">/{row.slug}</p>
                     </div>
                 </div>
             )
@@ -43,12 +46,15 @@ export default function PagesManagerPage() {
         {
             key: "updated_at",
             label: "LAST MODIFICATION",
-            render: (row: SitePage) => (
-                <div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-mono-600">
-                    <Clock className="h-4 w-4" />
-                    {new Date(row.updated_at).toLocaleDateString('en-GB')} AT {new Date(row.updated_at).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })}
-                </div>
-            )
+            render: (row: SitePage) => {
+                const dateString = (row as any).updated_at || (row as any).created_at || new Date().toISOString();
+                return (
+                    <div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-neutral-600">
+                        <Clock className="h-4 w-4" />
+                        {new Date(dateString).toLocaleDateString('en-GB')} AT {new Date(dateString).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })}
+                    </div>
+                )
+            }
         }
     ];
 
@@ -68,8 +74,8 @@ export default function PagesManagerPage() {
                         data={pages}
                         isLoading={loading}
                         searchKey="title"
-                        onEdit={(row) => window.location.href = `/admin/pages/${row.slug}`}
-                        onView={(row) => window.open(`/${row.slug}`, '_blank')}
+                        onEdit={(row: SitePage) => window.location.href = `/admin/pages/${row.slug}`}
+                        onView={(row: SitePage) => window.open(`/${row.slug}`, '_blank')}
                     />
                 </div>
 
@@ -79,7 +85,7 @@ export default function PagesManagerPage() {
                             ARCHIVAL METRICS
                         </h3>
                         <div className="space-y-1">
-                            <p className="text-[9px] font-black text-mono-400 uppercase tracking-widest">MANAGED NODES</p>
+                            <p className="text-[9px] font-black text-neutral-400 uppercase tracking-widest">MANAGED NODES</p>
                             <p className="text-6xl font-black tracking-tighter">{pages.length}</p>
                         </div>
                         <div className="pt-6">
@@ -90,8 +96,8 @@ export default function PagesManagerPage() {
                         </div>
                     </div>
 
-                    <div className="p-8 border-4 border-black border-dashed bg-mono-50">
-                        <p className="text-[9px] font-black uppercase tracking-widest leading-relaxed text-mono-500">
+                    <div className="p-8 border-4 border-black border-dashed bg-neutral-50">
+                        <p className="text-[9px] font-black uppercase tracking-widest leading-relaxed text-neutral-500">
                             INSTITUTIONAL PAGES DEFINE THE LEGAL AND PHILOSOPHICAL FRAMEWORK OF AAM. EDIT WITH EXTREME PRECISION.
                         </p>
                     </div>

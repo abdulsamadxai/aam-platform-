@@ -1,23 +1,40 @@
 import { Award, Shield, FileText, ArrowRight } from "lucide-react";
 import Link from "next/link";
-import { MOCK_MEMBERS } from "@/lib/mock-data";
+import { createClient } from "@/lib/supabase/server";
+import { redirect } from "next/navigation";
 
 export default async function MemberDashboard() {
-  const member = MOCK_MEMBERS[0];
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+
+  if (!user) {
+    redirect("/login");
+  }
+
+  const { data: profile } = await supabase
+    .from('members')
+    .select('*')
+    .eq('id', user.id)
+    .single();
+
+  if (!profile) {
+    // Should not happen if trigger is working
+    return <div>Profile not found. Please contact support.</div>;
+  }
 
   return (
     <div className="space-y-12 animate-in fade-in duration-700">
       <header>
-        <h1 className="text-4xl font-bold uppercase tracking-tight mb-2">Welcome back, {member.full_name.split(' ')[0]}</h1>
+        <h1 className="text-4xl font-bold uppercase tracking-tight mb-2">Welcome back, {profile.full_name.split(' ')[0]}</h1>
         <p className="text-aam-grey uppercase tracking-widest text-xs font-medium">Access your professional console and records.</p>
       </header>
 
       {/* Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         {[
-          { label: "Verification Status", value: member.status, icon: Shield, detail: "Standard Registry" },
-          { label: "AAM ID", value: member.aam_id || "PENDING", icon: null, detail: "Core Identifier" },
-          { label: "CPD Points", value: "14 / 20", icon: Award, detail: "2026 Cycle" },
+          { label: "Verification Status", value: profile.status, icon: Shield, detail: `${profile.category.toUpperCase()} Registry` },
+          { label: "AAM ID", value: profile.aam_id || "PENDING", icon: null, detail: "Core Identifier" },
+          { label: "CPD Points", value: "0 / 20", icon: Award, detail: "2026 Cycle" }, // Mocked for now until CPD table exists
           { label: "Renewal Due", value: "Jan 2027", icon: null, detail: "Annual Requirement" },
         ].map((stat, i) => (
           <div key={i} className="bg-aam-near-black p-8 border border-white/5 space-y-6 group hover:border-white/20 transition-all relative overflow-hidden">
@@ -40,19 +57,9 @@ export default async function MemberDashboard() {
           <section className="space-y-6">
             <h2 className="text-lg font-bold uppercase tracking-widest border-b border-white/10 pb-4">Latest Professional Discourse</h2>
             <div className="space-y-4">
-              {[
-                { title: "Standardising Contract Formats for Island Resorts", author: "Ahmed Nazim", date: "2h ago" },
-                { title: "Feedback on Draft Building Height Regulations", author: "Aminath Ali", date: "1d ago" },
-              ].map((thread, i) => (
-                <Link key={i} href="/member/forum" className="group block p-6 border border-white/5 hover:border-white/20 hover:bg-white/5 transition-all">
-                  <h3 className="text-lg font-bold uppercase tracking-tight mb-2 group-hover:underline underline-offset-4">{thread.title}</h3>
-                  <div className="flex items-center gap-4 text-[10px] uppercase tracking-widest text-aam-grey">
-                    <span>{thread.author}</span>
-                    <span className="w-1 h-1 bg-white/20 rounded-full" />
-                    <span>{thread.date}</span>
-                  </div>
-                </Link>
-              ))}
+              <div className="p-10 border border-dashed border-white/10 text-center uppercase tracking-widest text-[10px] text-aam-grey">
+                No recent discussions. Visit the Forum to start one.
+              </div>
             </div>
           </section>
 
@@ -61,11 +68,7 @@ export default async function MemberDashboard() {
             <div className="bg-aam-near-black p-6 border border-white/5 text-sm text-aam-grey space-y-4">
               <div className="flex gap-4">
                 <div className="w-2 h-2 bg-white rounded-full mt-1.5 shrink-0" />
-                <p>Your CPD submission for &quot;BIM Fundamentals&quot; has been approved (5 Points).</p>
-              </div>
-              <div className="flex gap-4">
-                <div className="w-2 h-2 bg-white/20 rounded-full mt-1.5 shrink-0" />
-                <p>Annual General Meeting statutory documents for 2026 are now available in the vault.</p>
+                <p>Welcome to the new AAM Platform. Your professional dossier is now active.</p>
               </div>
             </div>
           </section>

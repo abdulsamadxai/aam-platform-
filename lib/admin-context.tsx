@@ -1,6 +1,8 @@
 'use client'
 
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react'
+import { useRouter, usePathname } from 'next/navigation'
+import { createClient } from '@/lib/supabase/client'
 
 interface AdminContextType {
     isAdmin: boolean
@@ -14,35 +16,37 @@ interface AdminContextType {
 const AdminContext = createContext<AdminContextType>({
     isAdmin: false,
     isEditMode: false,
-    toggleEdit: () => { },
-    login: () => { },
-    logout: () => { },
+    toggleEdit: () => {},
+    login: () => {},
+    logout: () => {},
     currentPath: '',
 })
 
 export function AdminProvider({ children }: { children: ReactNode }) {
+    const [isMounted, setIsMounted] = useState(false)
     const [isAdmin, setIsAdmin] = useState(false)
     const [isEditMode, setEditMode] = useState(false)
-    const [currentPath, setCurrentPath] = useState('')
+    const router = useRouter()
+    const currentPath = usePathname() ?? ''
 
     useEffect(() => {
-        // Detect admin mode from localStorage, URL parameter ?admin=true, or path starting with /admin
-        const checkAdmin = () => {
-            const params = new URLSearchParams(window.location.search)
-            const path = window.location.pathname
-            const isAdminByParam = params.get('admin') === 'true'
-            const isAdminByPath = path.startsWith('/admin')
-            const isAdminByStorage = localStorage.getItem('aam_admin_session') === 'true'
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+        setIsMounted(true)
 
-            setIsAdmin(isAdminByParam || isAdminByPath || isAdminByStorage)
-            setCurrentPath(path)
+        async function checkAdminStatus() {
+            try {
+                const supabase = createClient()
+                const { data: { user } } = await supabase.auth.getUser()
+                if (user) {
+                    const adminUser = user.app_metadata?.role === 'admin'
+                    setIsAdmin(adminUser)
+                }
+            } catch {
+                setIsAdmin(false)
+            }
         }
 
-        checkAdmin()
-
-        // Also listen for popstate (navigation)
-        window.addEventListener('popstate', checkAdmin)
-        return () => window.removeEventListener('popstate', checkAdmin)
+        checkAdminStatus()
     }, [])
 
     const toggleEdit = () => {
@@ -52,19 +56,31 @@ export function AdminProvider({ children }: { children: ReactNode }) {
     }
 
     const login = () => {
-        localStorage.setItem('aam_admin_session', 'true')
         setIsAdmin(true)
     }
 
-    const logout = () => {
-        localStorage.removeItem('aam_admin_session')
-        setIsAdmin(false)
-        setEditMode(false)
-        window.location.href = '/' // Force fresh reload to home
+    const logout = async () => {
+        try {
+            const supabase = createClient()
+            await supabase.auth.signOut()
+        } catch {
+            // ignore sign-out errors
+        } finally {
+            setIsAdmin(false)
+            setEditMode(false)
+            router.push('/')
+        }
     }
 
     return (
-        <AdminContext.Provider value={{ isAdmin, isEditMode, toggleEdit, login, logout, currentPath }}>
+        <AdminContext.Provider value={{
+            isAdmin: isMounted ? isAdmin : false,
+            isEditMode: isMounted ? isEditMode : false,
+            toggleEdit,
+            login,
+            logout,
+            currentPath
+        }}>
             {children}
         </AdminContext.Provider>
     )

@@ -36,12 +36,12 @@ export function SlugInput({
         <div className="space-y-3">
             <Label className="text-[10px] font-black uppercase tracking-widest">{label}</Label>
             <div className="relative">
-                <span className="absolute left-6 top-1/2 -translate-y-1/2 text-mono-300 font-bold text-xs uppercase tracking-widest">
+                <span className="absolute left-6 top-1/2 -translate-y-1/2 text-neutral-300 font-bold text-xs uppercase tracking-widest">
                     /
                 </span>
                 <Input
                     placeholder={placeholder}
-                    className="pl-12 border-2 border-black rounded-none h-14 font-bold text-xs focus-visible:ring-0 bg-mono-50"
+                    className="pl-12 border-2 border-black rounded-none h-14 font-bold text-xs focus-visible:ring-0 bg-neutral-50"
                     value={value}
                     onChange={(e) => onChange(e.target.value)}
                     readOnly={readOnly}

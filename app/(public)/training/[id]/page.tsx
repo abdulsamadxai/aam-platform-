@@ -10,7 +10,7 @@ interface TrainingPageProps {
 
 export default async function TrainingDetailPage({ params }: TrainingPageProps) {
     const { id } = await params;
-    const program = getTrainingById(id);
+    const program = await getTrainingById(id);
 
     if (!program) {
         notFound();

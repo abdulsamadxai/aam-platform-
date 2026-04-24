@@ -73,8 +73,12 @@ export interface TrainingProgramme {
 export interface RegisteredFirm {
     id: string
     name: string
-    address: string
+    registration_number?: string
+    address?: string
     email: string
+    principal_architect?: string
+    category?: string
+    status?: string
     registered_date: string
 }
 

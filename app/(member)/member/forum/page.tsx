@@ -1,11 +1,40 @@
+"use client";
+
+import { useState, useMemo, useEffect } from "react";
 import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
 import { MessageSquare, User, Clock, Plus, Search } from "lucide-react";
 import Link from "next/link";
 import { Input } from "@/components/ui/input";
 import { getAllThreads } from "@/lib/mock-data";
+import { cn } from "@/lib/utils";
+
+const CATEGORIES = ["All", "Technical", "Regulatory", "General", "CPD", "Events"];
 
 export default function ForumPage() {
-    const threads = getAllThreads();
+    const [threads, setThreads] = useState<any[]>([]);
+    const [search, setSearch] = useState("");
+    const [activeCategory, setActiveCategory] = useState("All");
+
+    useEffect(() => {
+        async function fetchThreads() {
+            try {
+                const data = await getAllThreads();
+                setThreads(data);
+            } catch (error) {
+                console.error("Failed to load threads", error);
+            }
+        }
+        fetchThreads();
+    }, []);
+
+    const filtered = useMemo(() => {
+        return threads.filter((thread) => {
+            const matchesSearch = thread.title.toLowerCase().includes(search.toLowerCase());
+            const matchesCategory = activeCategory === "All" || thread.category === activeCategory;
+            return matchesSearch && matchesCategory;
+        });
+    }, [threads, search, activeCategory]);
 
     return (
         <div className="space-y-12 animate-in fade-in duration-700">
@@ -28,19 +57,30 @@ export default function ForumPage() {
                         <Label className="text-[10px] font-bold uppercase tracking-widest text-aam-grey">Search Forum</Label>
                         <div className="relative">
                             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-aam-grey" />
-                            <Input placeholder="Keywords..." className="pl-10 bg-aam-near-black border-white/10 rounded-none h-12 text-xs uppercase tracking-widest" />
+                            <Input
+                                placeholder="Keywords..."
+                                value={search}
+                                onChange={(e) => setSearch(e.target.value)}
+                                className="pl-10 bg-aam-near-black border-white/10 rounded-none h-12 text-xs uppercase tracking-widest"
+                            />
                         </div>
                     </div>
 
                     <div className="space-y-4">
                         <h3 className="text-[10px] font-bold text-aam-grey uppercase tracking-widest">Categories</h3>
                         <div className="space-y-1">
-                            <button className="w-full text-left px-4 py-2 bg-white text-black text-[10px] font-bold uppercase tracking-widest">
-                                All Discussions
-                            </button>
-                            {['Technical', 'Regulatory', 'General', 'CPD', 'Events'].map((cat) => (
-                                <button key={cat} className="w-full text-left px-4 py-2 hover:bg-white/5 text-aam-grey text-[10px] font-bold uppercase tracking-widest transition-all">
-                                    {cat}
+                            {CATEGORIES.map((cat) => (
+                                <button
+                                    key={cat}
+                                    onClick={() => setActiveCategory(cat)}
+                                    className={cn(
+                                        "w-full text-left px-4 py-2 text-[10px] font-bold uppercase tracking-widest transition-all",
+                                        activeCategory === cat
+                                            ? "bg-white text-black"
+                                            : "hover:bg-white/5 text-aam-grey"
+                                    )}
+                                >
+                                    {cat === "All" ? "All Discussions" : cat}
                                 </button>
                             ))}
                         </div>
@@ -48,7 +88,7 @@ export default function ForumPage() {
                 </aside>
 
                 <div className="flex-grow space-y-6">
-                    {threads?.map((thread) => (
+                    {filtered.map((thread) => (
                         <Link key={thread.id} href={`/member/forum/${thread.id}`} className="block group bg-aam-near-black border border-white/5 p-8 hover:border-white/20 transition-all">
                             <div className="flex justify-between items-start mb-6">
                                 <div className="flex items-center gap-4">
@@ -79,7 +119,7 @@ export default function ForumPage() {
                         </Link>
                     ))}
 
-                    {(!threads || threads.length === 0) && (
+                    {filtered.length === 0 && (
                         <div className="py-20 text-center border border-dashed border-white/10">
                             <p className="text-aam-grey uppercase tracking-widest text-xs">No discussions found.</p>
                         </div>
@@ -89,7 +129,3 @@ export default function ForumPage() {
         </div>
     );
 }
-
-const Label = ({ children, className }: { children: React.ReactNode, className?: string }) => (
-    <span className={className}>{children}</span>
-);

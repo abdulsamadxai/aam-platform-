@@ -10,7 +10,7 @@ interface EventPageProps {
 
 export default async function EventDetailPage({ params }: EventPageProps) {
     const { id } = await params;
-    const event = getEventById(id);
+    const event = await getEventById(id);
 
     if (!event) {
         notFound();
@@ -41,7 +41,7 @@ export default async function EventDetailPage({ params }: EventPageProps) {
 
                         {event.cover_image_url && (
                             <div className="aspect-[21/9] bg-aam-near-black border border-white/10 overflow-hidden relative group">
-                                <img src={event.cover_image_url} alt="" className="w-full h-full object-cover opacity-80 group-hover:scale-105 transition-transform duration-700" />
+                                <img src={event.cover_image_url} alt={event.title} className="w-full h-full object-cover opacity-80 group-hover:scale-105 transition-transform duration-700" />
                                 <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-60" />
                             </div>
                         )}
@@ -52,11 +52,11 @@ export default async function EventDetailPage({ params }: EventPageProps) {
                     </div>
 
                     <aside className="space-y-12">
-                        <div className="bg-white text-black p-10 space-y-10 shadow-[20px_20px_0px_0px_rgba(255,255,255,0.1)]">
-                            <h3 className="text-xs font-bold uppercase tracking-[0.3em] border-b border-black/10 pb-4">Schedule & Venue</h3>
+                        <div className="bg-[#0a0a0a] border border-white/5 text-white p-10 space-y-10 shadow-[20px_20px_0px_0px_rgba(255,255,255,0.02)]">
+                            <h3 className="text-xs font-bold uppercase tracking-[0.3em] border-b border-white/10 pb-4">Schedule & Venue</h3>
                             <div className="space-y-8">
                                 <div className="space-y-3">
-                                    <div className="flex items-center gap-3 text-[10px] font-bold uppercase tracking-widest opacity-40">
+                                    <div className="flex items-center gap-3 text-[10px] font-bold uppercase tracking-widest text-aam-grey">
                                         <Calendar className="w-4 h-4" /> Date
                                     </div>
                                     <div className="text-lg font-bold uppercase tracking-tight">
@@ -64,7 +64,7 @@ export default async function EventDetailPage({ params }: EventPageProps) {
                                     </div>
                                 </div>
                                 <div className="space-y-3">
-                                    <div className="flex items-center gap-3 text-[10px] font-bold uppercase tracking-widest opacity-40">
+                                    <div className="flex items-center gap-3 text-[10px] font-bold uppercase tracking-widest text-aam-grey">
                                         <Clock className="w-4 h-4" /> Time
                                     </div>
                                     <div className="text-lg font-bold uppercase tracking-tight">
@@ -73,7 +73,7 @@ export default async function EventDetailPage({ params }: EventPageProps) {
                                     </div>
                                 </div>
                                 <div className="space-y-3">
-                                    <div className="flex items-center gap-3 text-[10px] font-bold uppercase tracking-widest opacity-40">
+                                    <div className="flex items-center gap-3 text-[10px] font-bold uppercase tracking-widest text-aam-grey">
                                         <MapPin className="w-4 h-4" /> Venue
                                     </div>
                                     <div className="text-lg font-bold uppercase tracking-tight">
@@ -81,7 +81,7 @@ export default async function EventDetailPage({ params }: EventPageProps) {
                                     </div>
                                 </div>
                             </div>
-                            <Button className="w-full bg-black text-white hover:bg-aam-near-black h-14 rounded-none text-[10px] font-bold uppercase tracking-widest transition-all">
+                            <Button className="w-full bg-white text-black hover:bg-aam-grey h-14 rounded-none text-[10px] font-bold uppercase tracking-widest transition-all">
                                 Register Interest
                             </Button>
                         </div>

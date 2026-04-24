@@ -55,8 +55,8 @@ export function Footer() {
             © {new Date().getFullYear()} Architects Association Maldives. Institutional Publication.
           </p>
           <div className="flex gap-8">
-            <Link href="/privacy" className="text-[9px] font-bold uppercase tracking-widest text-aam-dark-grey hover:text-white transition-colors">Privacy Declaration</Link>
-            <Link href="/terms" className="text-[9px] font-bold uppercase tracking-widest text-aam-dark-grey hover:text-white transition-colors">Institutional Terms</Link>
+            <span className="text-[9px] font-bold uppercase tracking-widest text-aam-dark-grey/50 cursor-not-allowed select-none">Privacy Declaration</span>
+            <span className="text-[9px] font-bold uppercase tracking-widest text-aam-dark-grey/50 cursor-not-allowed select-none">Institutional Terms</span>
           </div>
         </div>
       </div>

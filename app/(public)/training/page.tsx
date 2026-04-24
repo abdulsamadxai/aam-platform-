@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { PageHeader } from "@/components/PageHeader";
 import { Button } from "@/components/ui/button";
 import { EditableBlock } from "@/components/admin/EditableBlock";
@@ -9,23 +9,24 @@ import { ConfirmDelete } from "@/components/admin/ConfirmDelete";
 import { TrainingForm } from "@/components/admin/forms/TrainingForm";
 import { ContentBlockForm } from "@/components/admin/forms/ContentBlockForm";
 import { useAdmin } from "@/lib/admin-context";
-import { Plus } from "lucide-react";
+import { Plus, Loader2, X, CheckCircle2 } from "lucide-react";
 import { toast } from "react-hot-toast";
 import { TrainingProgramme, TrainingRegistration } from "@/types";
 import { getAllTraining, saveTrainingRegistration } from "@/lib/mock-data";
-import { X, CheckCircle2, User, Mail, Phone, Building2, FileText } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 export default function TrainingPage() {
   const { isEditMode } = useAdmin();
-  const [programmes, setProgrammes] = useState<TrainingProgramme[]>(() => getAllTraining());
+  const [programmes, setProgrammes] = useState<TrainingProgramme[]>([]);
+  const [loading, setLoading] = useState(true);
   const [cpdSection, setCpdSection] = useState({
     title: "CPD Framework",
     body: "AAM requires all Professional Members to complete a minimum of 20 CPD hours per calendar year. CPD activities ensure that our members maintain the technical expertise and ethical standards required for modern architectural practice."
   });
 
   // Modal states
-  const [editingProg, setEditingProg] = useState<any>(null);
-  const [deletingProg, setDeletingProg] = useState<any>(null);
+  const [editingProg, setEditingProg] = useState<TrainingProgramme | null>(null);
+  const [deletingProg, setDeletingProg] = useState<TrainingProgramme | null>(null);
   const [isAddingProg, setIsAddingProg] = useState(false);
   const [editingCpd, setEditingCpd] = useState(false);
 
@@ -41,6 +42,22 @@ export default function TrainingPage() {
   });
   const [regErrors, setRegErrors] = useState<Record<string, string>>({});
   const [submittingReg, setSubmittingReg] = useState(false);
+
+  useEffect(() => {
+    fetchTraining();
+  }, []);
+
+  async function fetchTraining() {
+    setLoading(true);
+    try {
+      const data = await getAllTraining();
+      setProgrammes(data);
+    } catch (error) {
+      toast.error("Failed to fetch training");
+    } finally {
+      setLoading(false);
+    }
+  }
 
   function openRegister(prog: TrainingProgramme) {
     setRegisteringForProg(prog);
@@ -68,29 +85,51 @@ export default function TrainingPage() {
     return errors;
   }
 
-  function handleRegSubmit(e: React.FormEvent) {
+  async function handleRegSubmit(e: React.FormEvent) {
     e.preventDefault();
     const errors = validateReg();
     if (Object.keys(errors).length > 0) {
       setRegErrors(errors);
       return;
     }
+    if (!registeringForProg) return;
+    
     setSubmittingReg(true);
-    setTimeout(() => {
-      const registration: TrainingRegistration = {
-        id: `tr-${Date.now()}`,
-        training_id: registeringForProg!.id,
-        training_title: registeringForProg!.title,
-        ...regForm,
-        status: "new",
-        applied_at: new Date().toISOString(),
-      };
-      saveTrainingRegistration(registration);
-      setSubmittingReg(false);
-      setSubmitted(true);
-      toast.success("Interest registered successfully");
-    }, 800);
+    try {
+        const registration: Partial<TrainingRegistration> = {
+            training_id: registeringForProg.id,
+            training_title: registeringForProg.title,
+            ...regForm,
+            status: "new"
+        };
+        await saveTrainingRegistration(registration);
+        setSubmitted(true);
+        toast.success("Interest registered successfully");
+    } catch (error) {
+        toast.error("Registration failed");
+    } finally {
+        setSubmittingReg(false);
+    }
   }
+
+  const handleProgSubmit = async (data: any) => {
+    try {
+        const { createClient } = await import('@/lib/supabase/client');
+        const supabase = createClient();
+        if (isAddingProg) {
+            await supabase.from('training_programmes').insert([{ ...data, is_published: true }]);
+            toast.success("Programme created");
+        } else if (editingProg) {
+            await supabase.from('training_programmes').update(data).eq('id', editingProg.id);
+            toast.success("Programme updated");
+        }
+        setIsAddingProg(false);
+        setEditingProg(null);
+        fetchTraining();
+    } catch (error) {
+        toast.error("Operation failed");
+    }
+  };
 
   return (
     <main className="min-h-screen bg-black">
@@ -145,37 +184,44 @@ export default function TrainingPage() {
       <section className="py-24 bg-black border-t border-white/10">
         <div className="container mx-auto px-6 text-white">
           <h2 className="text-3xl font-bold mb-16 uppercase tracking-[0.2em]">Upcoming Programmes</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
-            {programmes.map((prog: TrainingProgramme) => (
-              <EditableBlock
-                key={prog.id}
-                label="Programme"
-                onEdit={() => setEditingProg(prog)}
-                onDelete={() => setDeletingProg(prog)}
-              >
-                <div className="p-12 bg-black border border-white/5 h-full space-y-6 flex flex-col justify-between hover:border-white transition-all">
-                  <div className="space-y-4">
-                    <div className="flex justify-between items-center">
-                      <span className="text-[10px] font-bold uppercase tracking-widest text-aam-grey">Program</span>
-                      <span className="text-[10px] font-bold uppercase tracking-widest text-white border border-white/20 px-3 py-1">{prog.is_published ? 'Published' : 'Draft'}</span>
+          
+          {loading ? (
+              <div className="flex justify-center py-24">
+                  <Loader2 className="w-8 h-8 animate-spin text-white/20" />
+              </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
+                {programmes.map((prog: TrainingProgramme) => (
+                <EditableBlock
+                    key={prog.id}
+                    label="Programme"
+                    onEdit={() => setEditingProg(prog)}
+                    onDelete={() => setDeletingProg(prog)}
+                >
+                    <div className="p-12 bg-black border border-white/5 h-full space-y-6 flex flex-col justify-between hover:border-white transition-all">
+                    <div className="space-y-4">
+                        <div className="flex justify-between items-center">
+                        <span className="text-[10px] font-bold uppercase tracking-widest text-aam-grey">Program</span>
+                        <span className="text-[10px] font-bold uppercase tracking-widest text-white border border-white/20 px-3 py-1">{prog.is_published ? 'Published' : 'Draft'}</span>
+                        </div>
+                        <h3 className="text-2xl font-bold uppercase tracking-tight leading-tight">{prog.title}</h3>
+                        <p className="text-sm text-aam-grey leading-relaxed font-light">{prog.description}</p>
+                        <div className="text-[10px] uppercase font-bold tracking-widest text-aam-grey mt-4">Schedule: {prog.schedule_text}</div>
                     </div>
-                    <h3 className="text-2xl font-bold uppercase tracking-tight leading-tight">{prog.title}</h3>
-                    <p className="text-sm text-aam-grey leading-relaxed font-light">{prog.description}</p>
-                    <div className="text-[10px] uppercase font-bold tracking-widest text-aam-grey mt-4">Schedule: {prog.schedule_text}</div>
-                  </div>
-                  <Button 
-                    className="btn-primary w-full mt-8"
-                    onClick={() => openRegister(prog)}
-                  >
-                    Register Interest
-                  </Button>
-                </div>
-              </EditableBlock>
-            ))}
-            {programmes.length === 0 && (
-              <p className="col-span-full text-aam-grey italic py-10 border-y border-white/5 uppercase tracking-widest text-center">No upcoming programmes.</p>
-            )}
-          </div>
+                    <Button 
+                        className="btn-primary w-full mt-8"
+                        onClick={() => openRegister(prog)}
+                    >
+                        Register Interest
+                    </Button>
+                    </div>
+                </EditableBlock>
+                ))}
+                {programmes.length === 0 && (
+                <p className="col-span-full text-aam-grey italic py-10 border-y border-white/5 uppercase tracking-widest text-center">No upcoming programmes.</p>
+                )}
+            </div>
+          )}
         </div>
       </section>
 
@@ -188,17 +234,7 @@ export default function TrainingPage() {
         <TrainingForm
           initialData={editingProg || {}}
           onCancel={() => { setEditingProg(null); setIsAddingProg(false); }}
-          onSubmit={(data) => {
-            if (isAddingProg) {
-              setProgrammes((prev: TrainingProgramme[]) => [{ ...data, id: Date.now().toString(), is_published: true, created_at: new Date().toISOString() } as TrainingProgramme, ...prev]);
-              setIsAddingProg(false);
-              toast.success("Programme created");
-            } else {
-              setProgrammes((prev: TrainingProgramme[]) => prev.map((item: TrainingProgramme) => item.id === editingProg.id ? { ...item, ...data } : item));
-              setEditingProg(null);
-              toast.success("Programme updated");
-            }
-          }}
+          onSubmit={handleProgSubmit}
         />
       </EditModal>
 
@@ -222,10 +258,17 @@ export default function TrainingPage() {
         open={!!deletingProg}
         itemName={deletingProg?.title || ""}
         onClose={() => setDeletingProg(null)}
-        onConfirm={() => {
-          setProgrammes((prev: TrainingProgramme[]) => prev.filter((item: TrainingProgramme) => item.id !== deletingProg.id));
-          setDeletingProg(null);
-          toast.success("Programme deleted");
+        onConfirm={async () => {
+          try {
+            const { createClient } = await import('@/lib/supabase/client');
+            const supabase = createClient();
+            await supabase.from('training_programmes').delete().eq('id', deletingProg?.id);
+            setDeletingProg(null);
+            toast.success("Programme deleted");
+            fetchTraining();
+          } catch (error) {
+            toast.error("Failed to delete programme");
+          }
         }}
       />
 
@@ -322,15 +365,21 @@ interface RegFieldProps {
 }
 
 function RegField({ id, label, type, value, onChange, error }: RegFieldProps) {
+  const errorId = `${id}-error`;
   return (
     <div className="space-y-1">
       <label htmlFor={id} className="block text-[9px] font-black uppercase tracking-[0.25em] text-white/50">{label}</label>
       <input 
         id={id} type={type} value={value} 
         onChange={e => onChange(e.target.value)}
-        className="w-full bg-black border border-white/10 text-white text-sm px-4 py-3 focus:outline-none focus:border-white/50 transition-colors"
+        aria-invalid={!!error}
+        aria-describedby={error ? errorId : undefined}
+        className={cn(
+          "w-full bg-black border text-white text-sm px-4 py-3 focus:outline-none transition-colors",
+          error ? "border-red-500" : "border-white/10 focus:border-white/50"
+        )}
       />
-      {error && <p className="text-red-400 text-[10px] font-bold uppercase tracking-widest">{error}</p>}
+      {error && <p id={errorId} className="text-red-400 text-[10px] font-bold uppercase tracking-widest">{error}</p>}
     </div>
   )
 }

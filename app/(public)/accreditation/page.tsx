@@ -58,7 +58,7 @@ export default function AccreditationPage() {
               <h2 className="text-3xl font-black uppercase tracking-widest border-l-8 border-white pl-8">
                 {validation.heading}
               </h2>
-              <p className="text-xl text-mono-400 font-medium leading-tight">
+              <p className="text-xl text-neutral-400 font-medium leading-tight">
                 {validation.body}
               </p>
             </div>
@@ -69,7 +69,7 @@ export default function AccreditationPage() {
               <ShieldCheck className="h-10 w-10 text-white shrink-0 group-hover:scale-110 transition-transform" />
               <div className="space-y-2">
                 <h4 className="font-black uppercase tracking-widest text-sm">GLOBAL STANDARDS</h4>
-                <p className="text-[10px] font-bold text-mono-500 uppercase tracking-widest leading-relaxed">
+                <p className="text-[10px] font-bold text-neutral-500 uppercase tracking-widest leading-relaxed">
                   Aligning with UIA and CAA education protocols.
                 </p>
               </div>
@@ -78,7 +78,7 @@ export default function AccreditationPage() {
               <FileText className="h-10 w-10 text-white shrink-0 group-hover:scale-110 transition-transform" />
               <div className="space-y-2">
                 <h4 className="font-black uppercase tracking-widest text-sm">FEE STRUCTURE</h4>
-                <p className="text-[10px] font-bold text-mono-500 uppercase tracking-widest leading-relaxed">
+                <p className="text-[10px] font-bold text-neutral-500 uppercase tracking-widest leading-relaxed">
                   Transparent protocols for institutional validation.
                 </p>
               </div>
@@ -115,7 +115,7 @@ export default function AccreditationPage() {
                   <h3 className="font-black text-2xl uppercase tracking-tighter border-b-2 border-white/20 pb-4 inline-block">
                     {inst.heading}
                   </h3>
-                  <p className="text-lg text-mono-400 font-medium leading-tight">
+                  <p className="text-lg text-neutral-400 font-medium leading-tight">
                     {inst.body}
                   </p>
                   <div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-white/40">

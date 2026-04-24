@@ -2,9 +2,10 @@ import { Plus, Edit, Trash2, ExternalLink } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { getAllNews } from "@/lib/mock-data";
+import Image from "next/image";
 
 export default async function AdminNews() {
-    const news = getAllNews();
+    const news = await getAllNews();
 
     return (
         <div className="space-y-12 animate-in fade-in duration-700">
@@ -22,8 +23,8 @@ export default async function AdminNews() {
             <div className="grid grid-cols-1 gap-6">
                 {news?.map((article) => (
                     <div key={article.id} className="bg-aam-near-black border border-white/5 p-8 flex flex-col md:flex-row gap-8 hover:border-white/20 transition-all">
-                        <div className="w-full md:w-48 h-32 bg-black border border-white/10 shrink-0">
-                            {article.cover_image_url && <img src={article.cover_image_url} className="w-full h-full object-cover grayscale opacity-50 group-hover:opacity-100 transition-opacity" alt="" />}
+                        <div className="w-full md:w-48 h-32 bg-black border border-white/10 shrink-0 relative">
+                            {article.cover_image_url && <Image src={article.cover_image_url} fill className="object-cover grayscale opacity-50 group-hover:opacity-100 transition-opacity" alt="" />}
                         </div>
                         <div className="flex-grow space-y-4">
                             <div className="flex items-center gap-4">

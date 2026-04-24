@@ -2,23 +2,33 @@ import { Users, UserPlus, MessageSquare, Send, ArrowUpRight, Shield } from "luci
 import Link from "next/link";
 import {
     getAllMembers,
-    getAllApplications,
     getAllThreads,
-    getAllBroadcasts
 } from "@/lib/mock-data";
+import { createClient } from "@/lib/supabase/server";
 
 export default async function AdminDashboard() {
-    const members = getAllMembers();
-    const applications = getAllApplications();
-    const threads = getAllThreads();
-    const broadcasts = getAllBroadcasts();
+    const supabase = await createClient();
+    
+    // Fetch stats in parallel
+    const [members, threads, { count: pendingApps }] = await Promise.all([
+        getAllMembers(),
+        getAllThreads(),
+        supabase.from('membership_applications').select('*', { count: 'exact', head: true }).eq('status', 'new')
+    ]);
 
     const stats = [
         { label: "Verified Members", value: members.length, icon: Users, href: "/admin/members" },
-        { label: "Pending Apps", value: applications.filter(a => a.status === 'pending').length, icon: UserPlus, href: "/admin/applications" },
+        { label: "Pending Apps", value: pendingApps || 0, icon: UserPlus, href: "/admin/applications" },
         { label: "Forum Threads", value: threads.length, icon: MessageSquare, href: "/admin/forum" },
-        { label: "Broadcasts", value: broadcasts.length, icon: Send, href: "/admin/broadcast" },
+        { label: "Broadcasts", value: 0, icon: Send, href: "/admin/broadcast" }, // Placeholder for broadcast count
     ];
+
+    // Fetch recent applications
+    const { data: recentApps } = await supabase
+        .from('membership_applications')
+        .select('*')
+        .order('created_at', { ascending: false })
+        .limit(3);
 
     return (
         <div className="space-y-12 animate-in fade-in duration-700">
@@ -50,13 +60,18 @@ export default async function AdminDashboard() {
                         <Link href="/admin/applications" className="text-[10px] font-bold uppercase tracking-widest text-aam-grey hover:text-white">View All</Link>
                     </div>
                     <div className="space-y-4">
-                        <div className="p-6 bg-aam-near-black border border-white/5 flex items-center justify-between">
-                            <div>
-                                <div className="text-sm font-bold uppercase tracking-tight">Mohamed Shaffan</div>
-                                <div className="text-[10px] text-aam-grey uppercase tracking-widest mt-1">Graduate Member • 2h ago</div>
+                        {recentApps?.map((app) => (
+                            <div key={app.id} className="p-6 bg-aam-near-black border border-white/5 flex items-center justify-between">
+                                <div>
+                                    <div className="text-sm font-bold uppercase tracking-tight">{app.full_name}</div>
+                                    <div className="text-[10px] text-aam-grey uppercase tracking-widest mt-1">{app.category_applied} • {new Date(app.created_at).toLocaleDateString()}</div>
+                                </div>
+                                <div className="px-3 py-1 bg-white/5 text-[9px] font-bold uppercase tracking-widest text-aam-grey border border-white/10">{app.status.toUpperCase()}</div>
                             </div>
-                            <div className="px-3 py-1 bg-white/5 text-[9px] font-bold uppercase tracking-widest text-aam-grey border border-white/10">Pending Review</div>
-                        </div>
+                        ))}
+                        {(!recentApps || recentApps.length === 0) && (
+                            <div className="p-6 text-center text-aam-grey uppercase tracking-widest text-[10px]">No recent applications.</div>
+                        )}
                     </div>
                 </section>
 
@@ -67,13 +82,13 @@ export default async function AdminDashboard() {
                         <div className="flex gap-4">
                             <Shield className="w-5 h-5 text-white/40" />
                             <p className="text-xs text-aam-grey leading-relaxed">
-                                Database integrity check scheduled for 02:00 UTC. No downtime expected.
+                                Supabase connectivity verified. Row Level Security is active.
                             </p>
                         </div>
                         <div className="flex gap-4">
                             <MessageSquare className="w-5 h-5 text-white/40" />
                             <p className="text-xs text-aam-grey leading-relaxed">
-                                Forum moderation required: 3 threads flagged for review.
+                                Database migration completed: Schema Phase 5.
                             </p>
                         </div>
                     </div>

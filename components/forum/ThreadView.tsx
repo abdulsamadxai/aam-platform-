@@ -7,10 +7,13 @@ import { Textarea } from "@/components/ui/textarea";
 import { User, Clock, MessageSquare, Send } from "lucide-react";
 import Image from "next/image";
 
+import { ForumThread, ForumReply } from "@/types/forum";
+import { Member } from "@/types";
+
 interface ThreadViewProps {
-    thread: any;
-    replies: any[];
-    user: any;
+    thread: ForumThread;
+    replies: ForumReply[];
+    user: Member | null;
 }
 
 export function ThreadView({ thread, replies: initialReplies, user }: ThreadViewProps) {
@@ -29,7 +32,7 @@ export function ThreadView({ thread, replies: initialReplies, user }: ThreadView
                 .from("forum_replies")
                 .insert([{
                     thread_id: thread.id,
-                    author_id: user.id,
+                    author_id: user?.id || "",
                     body: newReply,
                 }])
                 .select("*, author:members(full_name, avatar_url)")
@@ -37,7 +40,17 @@ export function ThreadView({ thread, replies: initialReplies, user }: ThreadView
 
             if (error) throw error;
 
-            setReplies([...replies, data]);
+            const posted = (data ?? {
+                id: `local-${Date.now()}`,
+                thread_id: thread.id,
+                author_id: user?.id,
+                body: newReply,
+                upvotes: 0,
+                is_flagged: false,
+                author: { full_name: user?.full_name ?? "You", profile_photo_url: undefined },
+                created_at: new Date().toISOString(),
+            }) as unknown as ForumReply;
+            setReplies([...replies, posted]);
             setNewReply("");
 
             // Update thread last_reply_at
@@ -78,8 +91,8 @@ export function ThreadView({ thread, replies: initialReplies, user }: ThreadView
 
                 <div className="pt-8 border-t border-white/5 flex items-center gap-4">
                     <div className="w-10 h-10 bg-black border border-white/10 flex items-center justify-center">
-                        {thread.author?.avatar_url ? (
-                            <Image src={thread.author.avatar_url} width={40} height={40} className="w-full h-full object-cover" alt="" />
+                        {thread.author?.profile_photo_url ? (
+                            <Image src={thread.author.profile_photo_url} width={40} height={40} className="w-full h-full object-cover" alt="" />
                         ) : (
                             <User className="w-5 h-5 text-aam-dark-grey" />
                         )}
@@ -104,8 +117,8 @@ export function ThreadView({ thread, replies: initialReplies, user }: ThreadView
                             <div className="flex items-center justify-between">
                                 <div className="flex items-center gap-3">
                                     <div className="w-6 h-6 bg-aam-near-black border border-white/10 flex items-center justify-center text-[10px] font-bold overflow-hidden">
-                                        {reply.author?.avatar_url ? (
-                                            <Image src={reply.author.avatar_url} width={24} height={24} className="w-full h-full object-cover" alt="" />
+                                        {reply.author?.profile_photo_url ? (
+                                            <Image src={reply.author.profile_photo_url} width={24} height={24} className="w-full h-full object-cover" alt="" />
                                         ) : (
                                             <User className="w-3.5 h-3.5" />
                                         )}

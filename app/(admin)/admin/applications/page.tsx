@@ -1,16 +1,14 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import {
-  getAllJobApplications,
-  updateJobApplicationStatus,
-} from "@/lib/mock-data";
+import { createClient } from "@/lib/supabase/client";
 import { JobApplication } from "@/types";
 import {
   Briefcase, Calendar, ChevronDown, Eye, Filter,
   Mail, Phone, Globe, User, X, Building2, Clock,
-  CheckCircle2, Circle, CircleOff, Star
+  Circle, CircleOff, Star, Loader2
 } from "lucide-react";
+import { toast } from "react-hot-toast";
 
 const STATUS_CONFIG: Record<JobApplication["status"], { label: string; color: string; bg: string; icon: React.ElementType }> = {
   new:        { label: "New",        color: "text-blue-400",   bg: "bg-blue-500/10 border-blue-500/30",   icon: Circle },
@@ -27,9 +25,31 @@ export default function AdminJobApplications() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    setApplications(getAllJobApplications());
-    setLoading(false);
+    fetchApplications();
   }, []);
+
+  async function fetchApplications() {
+    setLoading(true);
+    const supabase = createClient();
+    const { data, error } = await supabase
+      .from('job_applications')
+      .select('*, job_listings(title, company_name)')
+      .order('created_at', { ascending: false });
+
+    if (error) {
+      toast.error("Failed to fetch applications");
+    } else {
+      // Map Supabase response to expected JobApplication type
+      const mapped = data.map((app: any) => ({
+        ...app,
+        job_title: app.job_listings?.title || 'Unknown',
+        company_name: app.job_listings?.company_name || 'Unknown',
+        applied_at: app.created_at
+      }));
+      setApplications(mapped);
+    }
+    setLoading(false);
+  }
 
   const uniqueJobs = Array.from(new Set(applications.map(a => a.job_title)));
 
@@ -39,10 +59,20 @@ export default function AdminJobApplications() {
     return statusMatch && jobMatch;
   });
 
-  function changeStatus(id: string, status: JobApplication["status"]) {
-    updateJobApplicationStatus(id, status);
-    setApplications(prev => prev.map(a => a.id === id ? { ...a, status } : a));
-    if (selected?.id === id) setSelected(prev => prev ? { ...prev, status } : null);
+  async function changeStatus(id: string, status: JobApplication["status"]) {
+    const supabase = createClient();
+    const { error } = await supabase
+      .from('job_applications')
+      .update({ status })
+      .eq('id', id);
+
+    if (error) {
+      toast.error("Failed to update status");
+    } else {
+      setApplications(prev => prev.map(a => a.id === id ? { ...a, status } : a));
+      if (selected?.id === id) setSelected(prev => prev ? { ...prev, status } : null);
+      toast.success(`Application marked as ${status}`);
+    }
   }
 
   const counts = {
@@ -109,13 +139,15 @@ export default function AdminJobApplications() {
         </div>
       )}
 
-      {/* Empty state */}
+      {/* Loading state */}
       {loading && (
-        <div className="py-24 text-center text-white/40 text-[10px] font-black uppercase tracking-widest">
-          Loading applications…
+        <div className="py-24 text-center">
+          <Loader2 className="w-8 h-8 animate-spin text-white/20 mx-auto" />
+          <div className="text-[10px] font-black uppercase tracking-widest text-white/20 mt-4">Loading applications…</div>
         </div>
       )}
 
+      {/* Empty state */}
       {!loading && filtered.length === 0 && (
         <div className="py-24 border border-dashed border-white/10 text-center space-y-4">
           <Briefcase className="w-10 h-10 text-white/20 mx-auto" />

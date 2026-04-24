@@ -11,13 +11,15 @@ export default async function ThreadPage({ params }: { params: Promise<{ id: str
   // Mock user
   const user = { id: 'mock-user-1', email: 'member@test.am', user_metadata: { full_name: 'Mock Member' } };
 
-  const thread = getAllThreads().find(t => t.id === id);
+  const threads = await getAllThreads();
+  const thread = threads.find(t => t.id === id);
 
   if (!thread) {
     notFound();
   }
 
-  const replies = getAllReplies().filter(r => r.thread_id === id);
+  const allReplies = await getAllReplies();
+  const replies = allReplies.filter(r => r.thread_id === id);
 
   return (
     <div className="container py-12 max-w-5xl space-y-8">

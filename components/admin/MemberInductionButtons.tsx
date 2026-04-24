@@ -18,11 +18,11 @@ export function MemberInductionButtons({ applicationId }: MemberInductionButtons
 
   const handleApprove = async () => {
     setLoading('approve');
-    const result = await approveApplication(applicationId);
-    if (result.error) {
-      alert("INDUCTION ERROR: " + result.error);
-    } else {
-      alert("MEMBER INDUCTED SUCCESSFULLY. AAM_ID: " + result.aamId);
+    try {
+      await approveApplication(applicationId);
+      alert("MEMBER INDUCTED SUCCESSFULLY.");
+    } catch (err: any) {
+      alert("INDUCTION ERROR: " + err.message);
     }
     setLoading(null);
   };
@@ -30,9 +30,11 @@ export function MemberInductionButtons({ applicationId }: MemberInductionButtons
   const handleReject = async () => {
     if (!confirm("CONFIRM REJECTION OF DOSSIER?")) return;
     setLoading('reject');
-    const result = await rejectApplication(applicationId);
-    if (result.error) {
-      alert("REJECTION ERROR: " + result.error);
+    try {
+      await rejectApplication(applicationId);
+      alert("DOSSIER REJECTED.");
+    } catch (err: any) {
+      alert("REJECTION ERROR: " + err.message);
     }
     setLoading(null);
   };
@@ -42,7 +44,7 @@ export function MemberInductionButtons({ applicationId }: MemberInductionButtons
       <Button 
         onClick={handleApprove}
         disabled={!!loading}
-        className="flex-grow bg-black text-white hover:bg-mono-800 rounded-none font-black uppercase tracking-widest text-[10px] h-16 border-r-2 border-black"
+        className="flex-grow bg-black text-white hover:bg-neutral-800 rounded-none font-black uppercase tracking-widest text-[10px] h-16 border-r-2 border-black"
       >
         {loading === 'approve' ? <Loader2 className="h-5 w-5 animate-spin" /> : "APPROVE"}
       </Button>

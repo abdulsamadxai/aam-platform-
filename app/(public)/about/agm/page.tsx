@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { PageHeader } from "@/components/shared/PageHeader";
 import {
   Table,
@@ -14,37 +14,63 @@ import { EditableBlock } from "@/components/admin/EditableBlock";
 import { EditModal } from "@/components/admin/EditModal";
 import { ConfirmDelete } from "@/components/admin/ConfirmDelete";
 import { AGMRecordForm } from "@/components/admin/forms/AGMRecordForm";
-import { useAdmin } from "@/lib/admin-context";
-import { Download, FileText, ArrowRight, Plus } from "lucide-react";
+import { getAllAGMRecords } from "@/lib/mock-data";
 import { toast } from "react-hot-toast";
+import type { AGMRecord } from "@/types";
+import { useAdmin } from "@/lib/admin-context";
+import { Plus, Download, FileText, ArrowRight, Loader2 } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 export default function AGMPage() {
   const { isEditMode } = useAdmin();
+  const router = useRouter();
 
-  const [agmRecords, setAgmRecords] = useState([
-    { id: "1", year: 2025, date_held: "2025-01-11", title: "31ST ANNUAL GENERAL MEETING", resolutions: "5 statutory resolutions adopted regarding professional accreditation protocols and CPD requirements for the upcoming term." },
-    { id: "2", year: 2024, date_held: "2024-01-14", title: "30TH ANNUAL GENERAL MEETING", resolutions: "3 constitutional amendments passed regarding the election process for the external oversight board." },
-    { id: "3", year: 2023, date_held: "2023-01-08", title: "29TH ANNUAL GENERAL MEETING", resolutions: "4 resolutions passed regarding the formal establishment of the architectural standards registry." },
-  ]);
+  const [agmRecords, setAgmRecords] = useState<AGMRecord[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  const [editingRecord, setEditingRecord] = useState<any>(null);
-  const [deletingRecord, setDeletingRecord] = useState<any>(null);
+  const [editingRecord, setEditingRecord] = useState<AGMRecord | null>(null);
+  const [deletingRecord, setDeletingRecord] = useState<AGMRecord | null>(null);
   const [isAddingRecord, setIsAddingRecord] = useState(false);
 
-  const handleUpdate = (data: any) => {
-    if (isAddingRecord) {
-      setAgmRecords(prev => [...prev, { ...data, id: Date.now().toString(), title: `${data.year}${data.year > 2000 ? ['ST', 'ND', 'RD', 'TH'][(data.year - 1994) % 10 - 1] || 'TH' : ''} ANNUAL GENERAL MEETING` }]);
-      setIsAddingRecord(false);
-      toast.success("RECORD_NODE_INITIALIZED");
-    } else {
-      setAgmRecords(prev => prev.map(r => r.id === editingRecord.id ? { ...r, ...data } : r));
-      setEditingRecord(null);
-      toast.success("RECORD_NODE_SYNCHRONIZED");
+  useEffect(() => {
+    fetchRecords();
+  }, []);
+
+  async function fetchRecords() {
+    setLoading(true);
+    try {
+      const data = await getAllAGMRecords();
+      setAgmRecords(data);
+    } catch (error) {
+      toast.error("Failed to fetch records");
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  const handleUpdate = async (data: any) => {
+    try {
+        const { createClient } = await import('@/lib/supabase/client');
+        const supabase = createClient();
+        
+        if (isAddingRecord) {
+            await supabase.from('agm_records').insert([data]);
+            toast.success("AGM record added");
+        } else if (editingRecord) {
+            await supabase.from('agm_records').update(data).eq('id', editingRecord.id);
+            toast.success("AGM record updated");
+        }
+        
+        setIsAddingRecord(false);
+        setEditingRecord(null);
+        fetchRecords();
+    } catch (error) {
+        toast.error("Operation failed");
     }
   };
 
   return (
-    <div className="container py-24 space-y-24 text-black">
+    <div className="container py-24 space-y-24 text-black bg-white min-h-screen">
       <PageHeader
         title="AGM RECORDS"
         description="Institutional archives containing official minutes and statutory resolutions from the AAM Annual General Meetings."
@@ -66,54 +92,76 @@ export default function AGMPage() {
         </div>
 
         <div className="border-4 border-black rounded-none overflow-hidden bg-white">
-          <Table>
-            <TableHeader className="bg-black">
-              <TableRow className="hover:bg-black border-b-4 border-black">
-                <TableHead className="w-[120px] text-white font-black uppercase tracking-widest text-[10px] h-16 px-8">Year</TableHead>
-                <TableHead className="text-white font-black uppercase tracking-widest text-[10px] h-16">Proceedings Title</TableHead>
-                <TableHead className="text-white font-black uppercase tracking-widest text-[10px] h-16">Calendar Date</TableHead>
-                <TableHead className="text-white font-black uppercase tracking-widest text-[10px] h-16">Statutory Status</TableHead>
-                <TableHead className="text-right text-white font-black uppercase tracking-widest text-[10px] h-16 px-8">Dossier</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {agmRecords.map((record) => (
-                <TableRow key={record.id} className="border-b-2 border-black/10 hover:bg-black/5 transition-colors group">
-                  <TableCell className="font-black text-black px-8 py-10 text-3xl tracking-tighter align-top">
-                    {record.year}
-                  </TableCell>
-                  <TableCell className="font-black uppercase tracking-tight text-sm align-top pt-11 max-w-md">
-                    <EditableBlock
-                      label="AGM Record"
-                      onEdit={() => setEditingRecord(record)}
-                      onDelete={() => setDeletingRecord(record)}
-                    >
-                      <div className="space-y-4">
-                        <p>{record.title || `${record.year} ANNUAL GENERAL MEETING`}</p>
-                        <p className="text-[10px] font-bold text-black/40 normal-case tracking-normal leading-relaxed">
-                          {record.resolutions}
-                        </p>
-                      </div>
-                    </EditableBlock>
-                  </TableCell>
-                  <TableCell className="text-[10px] font-black uppercase tracking-widest text-black/40 align-top pt-12">
-                    {new Date(record.date_held).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}
-                  </TableCell>
-                  <TableCell className="align-top pt-11">
-                    <span className="bg-black text-white font-black px-3 py-1 text-[9px] uppercase tracking-widest">
-                      ARCHIVED_OFFICIAL
-                    </span>
-                  </TableCell>
-                  <TableCell className="text-right px-8 align-top pt-11">
-                    <button className="inline-flex items-center gap-3 text-[10px] font-black uppercase tracking-[0.2em] border-b-2 border-black pb-1 hover:text-black/60 transition-colors group">
-                      <Download className="h-4 w-4" />
-                      DOWNLOAD_PROTOCOL
-                    </button>
-                  </TableCell>
+          {loading ? (
+              <div className="flex justify-center py-24">
+                  <Loader2 className="w-8 h-8 animate-spin text-black/20" />
+              </div>
+          ) : (
+            <Table>
+                <TableHeader className="bg-black hover:bg-black">
+                <TableRow className="hover:bg-black border-b-4 border-black">
+                    <TableHead className="w-[120px] text-white font-black uppercase tracking-widest text-[10px] h-16 px-8">Year</TableHead>
+                    <TableHead className="text-white font-black uppercase tracking-widest text-[10px] h-16">Proceedings Title</TableHead>
+                    <TableHead className="text-white font-black uppercase tracking-widest text-[10px] h-16">Calendar Date</TableHead>
+                    <TableHead className="text-white font-black uppercase tracking-widest text-[10px] h-16">Statutory Status</TableHead>
+                    <TableHead className="text-right text-white font-black uppercase tracking-widest text-[10px] h-16 px-8">Dossier</TableHead>
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+                </TableHeader>
+                <TableBody>
+                {agmRecords.map((record) => (
+                    <TableRow key={record.id} className="border-b-2 border-black/10 hover:bg-black/5 transition-colors group">
+                    <TableCell className="font-black text-black px-8 py-10 text-3xl tracking-tighter align-top">
+                        {record.year}
+                    </TableCell>
+                    <TableCell className="font-black uppercase tracking-tight text-sm align-top pt-11 max-w-md">
+                        <EditableBlock
+                        label="AGM Record"
+                        onEdit={() => setEditingRecord(record)}
+                        onDelete={() => setDeletingRecord(record)}
+                        >
+                        <div className="space-y-4">
+                            <p>{record.title || `${record.year} ANNUAL GENERAL MEETING`}</p>
+                            <p className="text-[10px] font-bold text-black/40 normal-case tracking-normal leading-relaxed">
+                            {record.resolutions}
+                            </p>
+                        </div>
+                        </EditableBlock>
+                    </TableCell>
+                    <TableCell className="text-[10px] font-black uppercase tracking-widest text-black/40 align-top pt-12">
+                        {new Date(record.date_held).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}
+                    </TableCell>
+                    <TableCell className="align-top pt-11">
+                        <span className="bg-black text-white font-black px-3 py-1 text-[9px] uppercase tracking-widest">
+                        Official Record
+                        </span>
+                    </TableCell>
+                    <TableCell className="text-right px-8 align-top pt-11">
+                        <button 
+                        onClick={() => {
+                            if (record.minutes_file_url) {
+                                window.open(record.minutes_file_url, '_blank');
+                            } else {
+                                toast.error("Minutes not available");
+                            }
+                        }}
+                        className={`inline-flex items-center gap-3 text-[10px] font-black uppercase tracking-[0.2em] border-b-2 border-black pb-1 hover:text-black/60 transition-colors group ${!record.minutes_file_url ? 'opacity-25 cursor-not-allowed' : ''}`}
+                        >
+                        <Download className="h-4 w-4" />
+                        DOWNLOAD_PROTOCOL
+                        </button>
+                    </TableCell>
+                    </TableRow>
+                ))}
+                {agmRecords.length === 0 && (
+                    <TableRow>
+                        <TableCell colSpan={5} className="py-24 text-center text-black/20 uppercase tracking-[0.3em] font-black">
+                            No Archival Records Found
+                        </TableCell>
+                    </TableRow>
+                )}
+                </TableBody>
+            </Table>
+          )}
         </div>
       </div>
 
@@ -129,7 +177,7 @@ export default function AGMPage() {
             general meetings, please contact the AAM Secretariat.
           </p>
         </div>
-        <button className="bg-white text-black font-black uppercase tracking-widest text-xs py-6 px-12 border-2 border-white hover:bg-black hover:text-white transition-all relative z-10 group">
+        <button onClick={() => router.push('/contact')} className="bg-white text-black font-black uppercase tracking-widest text-xs py-6 px-12 border-2 border-white hover:bg-black hover:text-white transition-all relative z-10 group">
           REQUEST ARCHIVES <ArrowRight className="inline-block ml-3 h-4 w-4 group-hover:translate-x-2 transition-transform" />
         </button>
       </div>
@@ -141,7 +189,7 @@ export default function AGMPage() {
         title={isAddingRecord ? "Add AGM Record" : "Edit AGM Record"}
       >
         <AGMRecordForm
-          initialData={editingRecord || {}}
+          initialData={editingRecord || undefined}
           onCancel={() => { setEditingRecord(null); setIsAddingRecord(false); }}
           onSubmit={handleUpdate}
         />
@@ -151,13 +199,19 @@ export default function AGMPage() {
         open={!!deletingRecord}
         itemName={`AGM Record ${deletingRecord?.year}`}
         onClose={() => setDeletingRecord(null)}
-        onConfirm={() => {
-          setAgmRecords(prev => prev.filter(r => r.id !== deletingRecord.id));
-          setDeletingRecord(null);
-          toast.success("RECORD_NODE_DE-SYNCHRONIZED");
+        onConfirm={async () => {
+          try {
+            const { createClient } = await import('@/lib/supabase/client');
+            const supabase = createClient();
+            await supabase.from('agm_records').delete().eq('id', deletingRecord?.id);
+            setDeletingRecord(null);
+            toast.success("AGM record removed");
+            fetchRecords();
+          } catch (error) {
+            toast.error("Failed to delete record");
+          }
         }}
       />
     </div>
   );
 }
-

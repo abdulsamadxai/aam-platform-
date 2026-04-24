@@ -1,6 +1,6 @@
 'use client'
 
-import { useForm } from 'react-hook-form'
+import { useForm, Resolver } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import * as z from 'zod'
 import { Input } from '@/components/ui/input'
@@ -13,7 +13,7 @@ import Image from 'next/image'
 const schema = z.object({
     title: z.string().min(1, 'Title is required'),
     event_date: z.string().min(1, 'Event date is required'),
-    photos: z.array(z.string()).optional().default([]),
+    photos: z.array(z.string()).default([]),
 })
 
 type FormData = z.infer<typeof schema>
@@ -30,7 +30,7 @@ export function GalleryAlbumForm({ initialData, onSubmit, onCancel }: Props) {
     const [photos, setPhotos] = useState<string[]>(initialPhotos);
 
     const { register, handleSubmit, formState: { errors, isSubmitting }, setValue } = useForm<FormData>({
-        resolver: zodResolver(schema),
+        resolver: zodResolver(schema) as unknown as Resolver<FormData>,
         defaultValues: {
             title: initialData?.title || '',
             event_date: initialData?.event_date || '',
@@ -60,8 +60,9 @@ export function GalleryAlbumForm({ initialData, onSubmit, onCancel }: Props) {
         setValue('photos', newPhotos);
     }
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     return (
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+        <form onSubmit={handleSubmit(onSubmit as any)} className="space-y-6">
             <div className="space-y-2">
                 <Label className="text-[10px] uppercase tracking-widest font-bold text-aam-grey">Album Title</Label>
                 <Input {...register('title')} className="bg-black border-white/10 rounded-none focus:border-white text-white h-12" />

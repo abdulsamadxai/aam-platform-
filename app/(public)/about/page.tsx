@@ -1,15 +1,19 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { PageHeader } from "@/components/shared/PageHeader";
 import { EditableBlock } from "@/components/admin/EditableBlock";
 import { EditModal } from "@/components/admin/EditModal";
 import { ContentBlockForm } from "@/components/admin/forms/ContentBlockForm";
 import { useAdmin } from "@/lib/admin-context";
 import { toast } from "react-hot-toast";
+import { getAllPages, updateSitePage } from "@/lib/mock-data";
+import { Loader2 } from "lucide-react";
 
 export default function AboutPage() {
   const { isEditMode } = useAdmin();
+  const [loading, setLoading] = useState(true);
+  const [pageData, setPageData] = useState<any>(null);
 
   const [history, setHistory] = useState({
     heading: "Our History",
@@ -28,16 +32,55 @@ export default function AboutPage() {
 
   const [editingBlock, setEditingBlock] = useState<{ key: string; data: any } | null>(null);
 
-  const handleUpdate = (data: any) => {
+  useEffect(() => {
+    fetchPage();
+  }, []);
+
+  async function fetchPage() {
+    setLoading(true);
+    try {
+      const pages = await getAllPages();
+      const aboutPage = pages.find(p => p.slug === 'about');
+      if (aboutPage && aboutPage.content) {
+        setPageData(aboutPage);
+        const content = aboutPage.content as any;
+        if (content.history) setHistory(content.history);
+        if (content.mission) setMission(content.mission);
+        if (content.vision) setVision(content.vision);
+      }
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  const handleUpdate = async (data: any) => {
     if (!editingBlock) return;
 
-    if (editingBlock.key === 'history') setHistory(data);
-    if (editingBlock.key === 'mission') setMission(data);
-    if (editingBlock.key === 'vision') setVision(data);
+    const newContent = {
+        history: editingBlock.key === 'history' ? data : history,
+        mission: editingBlock.key === 'mission' ? data : mission,
+        vision: editingBlock.key === 'vision' ? data : vision,
+    };
 
-    setEditingBlock(null);
-    toast.success("CONTENT_NODE_SYNCHRONIZED");
+    try {
+        await updateSitePage('about', newContent);
+        if (editingBlock.key === 'history') setHistory(data);
+        if (editingBlock.key === 'mission') setMission(data);
+        if (editingBlock.key === 'vision') setVision(data);
+        setEditingBlock(null);
+        toast.success("Content updated successfully");
+    } catch (error) {
+        toast.error("Failed to update content");
+    }
   };
+
+  if (loading) return (
+    <div className="min-h-screen bg-black flex items-center justify-center">
+        <Loader2 className="w-8 h-8 animate-spin text-white/20" />
+    </div>
+  );
 
   return (
     <main className="min-h-screen bg-black text-white">
@@ -56,7 +99,7 @@ export default function AboutPage() {
             <h2 className="text-3xl font-black uppercase tracking-widest mb-10 border-l-8 border-white pl-8">
               {history.heading}
             </h2>
-            <div className="space-y-8 text-xl text-mono-400 font-medium leading-tight whitespace-pre-line">
+            <div className="space-y-8 text-xl text-aam-grey font-medium leading-tight whitespace-pre-line">
               {history.body}
             </div>
           </EditableBlock>
@@ -75,7 +118,7 @@ export default function AboutPage() {
                 <h3 className="text-2xl font-black uppercase tracking-widest text-white border-b-2 border-white/20 pb-4 inline-block">
                   {mission.heading}
                 </h3>
-                <p className="text-xl text-mono-300 font-medium leading-tight">
+                <p className="text-xl text-aam-grey font-medium leading-tight">
                   {mission.body}
                 </p>
               </div>
@@ -89,7 +132,7 @@ export default function AboutPage() {
                 <h3 className="text-2xl font-black uppercase tracking-widest text-white border-b-2 border-white/20 pb-4 inline-block">
                   {vision.heading}
                 </h3>
-                <p className="text-xl text-mono-300 font-medium leading-tight">
+                <p className="text-xl text-aam-grey font-medium leading-tight">
                   {vision.body}
                 </p>
               </div>

@@ -43,7 +43,7 @@ export default function MemberLayout({ children }: { children: React.ReactNode }
                 isAdmin ? "top-[44px]" : "top-0"
             )}>
                 <Logo variant="light" size="sm" />
-                <button className="text-white">
+                <button className="text-white" aria-label="Open navigation menu">
                     <LayoutDashboard className="w-6 h-6" />
                 </button>
             </div>
@@ -64,7 +64,7 @@ export default function MemberLayout({ children }: { children: React.ReactNode }
                             href={item.href}
                             className={cn(
                                 "flex items-center gap-4 px-4 py-3 text-[11px] font-bold uppercase tracking-[0.2em] transition-all group",
-                                pathname === item.href
+                                pathname === item.href || (item.href !== "/member/dashboard" && pathname.startsWith(item.href))
                                     ? "bg-white text-black"
                                     : "text-aam-grey hover:text-white hover:bg-white/5"
                             )}

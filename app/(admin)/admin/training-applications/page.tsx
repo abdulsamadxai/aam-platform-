@@ -9,8 +9,9 @@ import { TrainingRegistration } from "@/types";
 import {
   ShieldCheck, Calendar, ChevronDown, Eye, Filter,
   Mail, Phone, Building2, User, X, Clock,
-  CheckCircle2, Circle, CircleOff, Star, FileText
+  CheckCircle2, Circle, CircleOff, Star, FileText, Loader2
 } from "lucide-react";
+import { toast } from "react-hot-toast";
 
 const STATUS_CONFIG: Record<TrainingRegistration["status"], { label: string; color: string; bg: string; icon: React.ElementType }> = {
   new:        { label: "New",        color: "text-blue-400",   bg: "bg-blue-500/10 border-blue-500/30",   icon: Circle },
@@ -27,9 +28,20 @@ export default function AdminTrainingApplications() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    setApplications(getAllTrainingRegistrations());
-    setLoading(false);
+    fetchApplications();
   }, []);
+
+  async function fetchApplications() {
+    setLoading(true);
+    try {
+        const data = await getAllTrainingRegistrations();
+        setApplications(data);
+    } catch (error) {
+        toast.error("Failed to fetch registrations");
+    } finally {
+        setLoading(false);
+    }
+  }
 
   const uniqueProgs = Array.from(new Set(applications.map(a => a.training_title)));
 
@@ -39,10 +51,15 @@ export default function AdminTrainingApplications() {
     return statusMatch && progMatch;
   });
 
-  function changeStatus(id: string, status: TrainingRegistration["status"]) {
-    updateTrainingRegistrationStatus(id, status);
-    setApplications(prev => prev.map(a => a.id === id ? { ...a, status } : a));
-    if (selected?.id === id) setSelected(prev => prev ? { ...prev, status } : null);
+  async function changeStatus(id: string, status: TrainingRegistration["status"]) {
+    try {
+        await updateTrainingRegistrationStatus(id, status);
+        setApplications(prev => prev.map(a => a.id === id ? { ...a, status } : a));
+        if (selected?.id === id) setSelected(prev => prev ? { ...prev, status } : null);
+        toast.success(`Status updated to ${status}`);
+    } catch (error) {
+        toast.error("Failed to update status");
+    }
   }
 
   const counts = {
@@ -109,6 +126,14 @@ export default function AdminTrainingApplications() {
         </div>
       )}
 
+      {/* Loading state */}
+      {loading && (
+        <div className="py-24 text-center">
+            <Loader2 className="w-8 h-8 animate-spin text-white/20 mx-auto" />
+            <p className="text-white/20 uppercase tracking-widest text-[10px] mt-4 font-bold">Synchronizing Archive...</p>
+        </div>
+      )}
+
       {/* Empty state */}
       {!loading && filtered.length === 0 && (
         <div className="py-24 border border-dashed border-white/10 text-center space-y-4">
@@ -154,7 +179,7 @@ export default function AdminTrainingApplications() {
                         <Mail className="w-3 h-3" /> {app.email}
                       </span>
                       <span className="flex items-center gap-1.5 text-[10px] text-white/50">
-                        <Calendar className="w-3 h-3" /> {new Date(app.applied_at).toLocaleDateString()}
+                        <Calendar className="w-3 h-3" /> {app.applied_at ? new Date(app.applied_at).toLocaleDateString() : 'N/A'}
                       </span>
                     </div>
                   </div>
@@ -228,7 +253,7 @@ export default function AdminTrainingApplications() {
 
               <Section label="Programme Info">
                 <DetailRow icon={<ShieldCheck className="w-3.5 h-3.5" />} label="Training Title" value={selected.training_title} />
-                <DetailRow icon={<Clock className="w-3.5 h-3.5" />} label="Registered On" value={new Date(selected.applied_at).toLocaleDateString(undefined, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })} />
+                <DetailRow icon={<Clock className="w-3.5 h-3.5" />} label="Registered On" value={selected.applied_at ? new Date(selected.applied_at).toLocaleDateString(undefined, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }) : 'N/A'} />
               </Section>
 
               <Section label="Personal Information">

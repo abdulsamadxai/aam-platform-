@@ -6,27 +6,40 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import { Mail, Phone, MapPin, CheckCircle2 } from "lucide-react";
+import { Mail, Phone, MapPin, CheckCircle2, Loader2 } from "lucide-react";
+import { saveContactSubmission } from "@/lib/mock-data";
+import { toast } from "react-hot-toast";
 
 export default function ContactPage() {
   const [isSuccess, setIsSuccess] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [formData, setFormData] = useState({ name: "", email: "", subject: "", message: "" });
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setSubmitting(true);
 
-    setTimeout(() => {
-      setIsSuccess(true);
-      setSubmitting(false);
-    }, 1000);
+    try {
+        await saveContactSubmission({
+            name: formData.name,
+            email: formData.email,
+            subject: formData.subject,
+            message: formData.message,
+            status: 'new'
+        });
+        setIsSuccess(true);
+    } catch (error) {
+        toast.error("Failed to send message. Please try again.");
+    } finally {
+        setSubmitting(false);
+    }
   };
 
   if (isSuccess) {
     return (
       <main className="min-h-screen bg-black pt-32">
         <div className="container mx-auto px-6 max-w-2xl text-center py-20">
-          <div className="w-20 h-20 bg-white text-black flex items-center justify-center mx-auto mb-10">
+          <div className="w-20 h-20 bg-black border border-white text-white flex items-center justify-center mx-auto mb-10">
             <CheckCircle2 className="w-10 h-10" />
           </div>
           <h1 className="text-4xl font-bold uppercase tracking-tight mb-6">Message Sent</h1>
@@ -100,22 +113,27 @@ export default function ContactPage() {
               <form onSubmit={handleSubmit} className="space-y-8">
                 <div className="space-y-3">
                   <Label className="text-[10px] font-bold uppercase tracking-widest text-aam-grey">Full Name</Label>
-                  <Input name="name" required className="bg-black border-white/10 rounded-none h-14" />
+                  <Input name="name" required value={formData.name} onChange={(e) => setFormData(p => ({ ...p, name: e.target.value }))} className="bg-black border-white/10 rounded-none h-14" />
                 </div>
                 <div className="space-y-3">
                   <Label className="text-[10px] font-bold uppercase tracking-widest text-aam-grey">Email Address</Label>
-                  <Input name="email" type="email" required className="bg-black border-white/10 rounded-none h-14" />
+                  <Input name="email" type="email" required value={formData.email} onChange={(e) => setFormData(p => ({ ...p, email: e.target.value }))} className="bg-black border-white/10 rounded-none h-14" />
                 </div>
                 <div className="space-y-3">
                   <Label className="text-[10px] font-bold uppercase tracking-widest text-aam-grey">Subject</Label>
-                  <Input name="subject" required className="bg-black border-white/10 rounded-none h-14" />
+                  <Input name="subject" required value={formData.subject} onChange={(e) => setFormData(p => ({ ...p, subject: e.target.value }))} className="bg-black border-white/10 rounded-none h-14" />
                 </div>
                 <div className="space-y-3">
                   <Label className="text-[10px] font-bold uppercase tracking-widest text-aam-grey">Message</Label>
-                  <Textarea name="message" required className="bg-black border-white/10 rounded-none min-h-[160px] resize-none" />
+                  <Textarea name="message" required value={formData.message} onChange={(e) => setFormData(p => ({ ...p, message: e.target.value }))} className="bg-black border-white/10 rounded-none min-h-[160px] resize-none" />
                 </div>
                 <Button disabled={submitting} type="submit" className="btn-primary w-full h-16 text-sm uppercase tracking-[0.2em]">
-                  {submitting ? "Sending..." : "Send Message"}
+                  {submitting ? (
+                      <>
+                        <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                        Sending...
+                      </>
+                  ) : "Send Message"}
                 </Button>
               </form>
             </div>

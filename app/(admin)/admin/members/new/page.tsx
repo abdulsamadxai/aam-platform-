@@ -69,15 +69,15 @@ export default function NewMemberPage() {
           </div>
           <div className="space-y-4">
             <CardTitle className="text-4xl font-black uppercase tracking-tighter">NODE REGISTERED</CardTitle>
-            <CardDescription className="text-sm font-black uppercase tracking-widest text-mono-400">
+            <CardDescription className="text-sm font-black uppercase tracking-widest text-neutral-400">
               MEMBER {assignedId} HAS BEEN SUCCESSFULLY INTEGRATED INTO THE REGISTRY.
             </CardDescription>
           </div>
           <div className="flex flex-col gap-4">
-            <Button asChild className="h-16 w-full bg-white text-black hover:bg-mono-200 font-black uppercase tracking-widest text-[10px] rounded-none border-2 border-white transition-all">
+            <Button asChild className="h-16 w-full bg-white text-black hover:bg-neutral-200 font-black uppercase tracking-widest text-[10px] rounded-none border-2 border-white transition-all">
               <Link href="/admin/members">RETURN TO REGISTRY</Link>
             </Button>
-            <Button variant="ghost" onClick={() => { setSuccess(false); setFormData({ ...formData, full_name: "", email: "" }); }} className="text-white hover:text-white hover:bg-mono-900 font-black uppercase tracking-widest text-[10px]">
+            <Button variant="ghost" onClick={() => { setSuccess(false); setFormData({ ...formData, full_name: "", email: "" }); }} className="text-white hover:text-white hover:bg-neutral-900 font-black uppercase tracking-widest text-[10px]">
               REGISTER ANOTHER NODE
             </Button>
           </div>
@@ -97,13 +97,13 @@ export default function NewMemberPage() {
 
       <div className="space-y-4 border-l-8 border-black pl-8">
         <h1 className="text-5xl md:text-8xl font-black uppercase tracking-tighter leading-none">New Node <br /> Induction</h1>
-        <p className="text-sm font-black uppercase tracking-[0.4em] text-mono-400">Manual Registry Integration Protocol</p>
+        <p className="text-sm font-black uppercase tracking-[0.4em] text-neutral-400">Manual Registry Integration Protocol</p>
       </div>
 
       <form onSubmit={handleSubmit} className="grid grid-cols-1 lg:grid-cols-3 gap-16">
         <div className="lg:col-span-2 space-y-12">
           <Card className="border-4 border-black rounded-none shadow-none overflow-hidden bg-white">
-            <CardHeader className="p-10 border-b-2 border-black bg-mono-50">
+            <CardHeader className="p-10 border-b-2 border-black bg-neutral-50">
               <CardTitle className="text-xs font-black uppercase tracking-[0.4em]">INDUCTION PARAMETERS</CardTitle>
             </CardHeader>
             <CardContent className="p-10 space-y-10">
@@ -160,7 +160,7 @@ export default function NewMemberPage() {
                 </div>
               </div>
 
-              <div className="flex items-center gap-4 p-6 bg-mono-50 border-2 border-black/5">
+              <div className="flex items-center gap-4 p-6 bg-neutral-50 border-2 border-black/5">
                 <input
                   type="checkbox"
                   id="welcome"
@@ -179,13 +179,13 @@ export default function NewMemberPage() {
                 <ShieldCheck className="h-8 w-8 text-white" />
                 <div className="space-y-1">
                   <p className="text-[10px] font-black uppercase tracking-widest">AUTHORITY VERIFIED</p>
-                  <p className="text-[8px] font-bold uppercase tracking-widest text-mono-400">ENTRY WILL BE PERMANENTLY LOGGED.</p>
+                  <p className="text-[8px] font-bold uppercase tracking-widest text-neutral-400">ENTRY WILL BE PERMANENTLY LOGGED.</p>
                 </div>
               </div>
               <Button
                 type="submit"
                 disabled={loading}
-                className="h-16 px-10 bg-white text-black hover:bg-mono-200 rounded-none font-black uppercase tracking-widest text-[10px] border-2 border-white transition-all"
+                className="h-16 px-10 bg-white text-black hover:bg-neutral-200 rounded-none font-black uppercase tracking-widest text-[10px] border-2 border-white transition-all"
               >
                 {loading ? <Loader2 className="h-5 w-5 animate-spin" /> : "COMPLETE INDUCTION"}
               </Button>
@@ -199,26 +199,26 @@ export default function NewMemberPage() {
               <CardTitle className="text-[10px] font-black uppercase tracking-[0.4em]">ASSIGNED IDENTITY</CardTitle>
             </CardHeader>
             <CardContent className="p-8 text-center space-y-6">
-              <p className="text-[9px] font-black uppercase tracking-[0.4em] text-mono-400">PROFILE PHOTO</p>
+              <p className="text-[9px] font-black uppercase tracking-[0.4em] text-neutral-400">PROFILE PHOTO</p>
               <FileUploader
                 bucket="avatars"
                 onUploadComplete={(url) => setFormData({ ...formData, profile_photo_url: url })}
                 label="Upload Avatar"
               />
-              <p className="text-[9px] font-black uppercase tracking-[0.4em] text-mono-400">NEXT SEQUENTIAL AAM ID</p>
+              <p className="text-[9px] font-black uppercase tracking-[0.4em] text-neutral-400">NEXT SEQUENTIAL AAM ID</p>
               <div className="text-6xl font-black tracking-tighter border-y-4 border-black py-8">{assignedId || "---"}</div>
-              <p className="text-[9px] font-bold text-mono-400 uppercase tracking-widest leading-relaxed">
+              <p className="text-[9px] font-bold text-neutral-400 uppercase tracking-widest leading-relaxed">
                 ID GENERATED AUTOMATICALLY BASED ON GLOBAL REGISTRY MAX(N+1) LOGIC.
               </p>
             </CardContent>
           </Card>
 
-          <div className="p-8 border-4 border-black border-dashed rounded-none space-y-6 bg-mono-50">
+          <div className="p-8 border-4 border-black border-dashed rounded-none space-y-6 bg-neutral-50">
             <div className="flex items-center gap-3">
               <Info className="h-5 w-5 text-black" />
               <h4 className="text-[10px] font-black uppercase tracking-[0.4em]">REGISTRY NOTICE</h4>
             </div>
-            <p className="text-[9px] font-black uppercase tracking-widest leading-relaxed text-mono-500">
+            <p className="text-[9px] font-black uppercase tracking-widest leading-relaxed text-neutral-500">
               MANUAL INDUCTION SHOULD ONLY BE PERFORMED FOR MEMBERS WITH VERIFIED PHYSICAL DOCUMENTATION. ALL FIELDS ARE MANDATORY FOR REGISTRY INTEGRITY.
             </p>
           </div>

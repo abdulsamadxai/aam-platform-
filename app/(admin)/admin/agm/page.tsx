@@ -32,14 +32,26 @@ export default function AdminAGMPage() {
     const [isAdding, setIsAdding] = useState(false);
 
     useEffect(() => {
-        const data = getAllAGMRecords();
-        setRecords([...data].sort((a, b) => b.year - a.year));
+        fetchRecords();
     }, []);
 
-    const persist = (updated: AGMRecord[]) => {
-        const sorted = [...updated].sort((a, b) => b.year - a.year);
-        saveAGMRecords(sorted);
-        setRecords(sorted);
+    async function fetchRecords() {
+        try {
+            const data = await getAllAGMRecords();
+            setRecords([...data].sort((a, b) => b.year - a.year));
+        } catch (error) {
+            toast.error("Failed to fetch AGM records");
+        }
+    }
+
+    const persist = async (updated: AGMRecord[]) => {
+        try {
+            const sorted = [...updated].sort((a, b) => b.year - a.year);
+            await saveAGMRecords(sorted);
+            setRecords(sorted);
+        } catch (error) {
+            toast.error("Failed to save record");
+        }
     };
 
     const handleAdd = (data: any) => {

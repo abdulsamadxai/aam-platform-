@@ -47,7 +47,7 @@ interface Reply {
 interface ThreadViewProps {
   initialThread: Thread;
   initialReplies: Reply[];
-  currentUser: { id: string };
+  currentUser: { id: string; user_metadata?: { full_name: string } };
 }
 
 export function ThreadView({ initialThread, initialReplies, currentUser }: ThreadViewProps) {
@@ -65,13 +65,13 @@ export function ThreadView({ initialThread, initialReplies, currentUser }: Threa
 
     setSubmitting(true);
 
-    const reply: any = {
+    const reply = {
       id: `rep-${Date.now()}`,
       thread_id: initialThread.id,
       body: newReply,
       author_id: currentUser.id,
       created_at: new Date().toISOString(),
-    };
+    } as any;
 
     saveForumReply(reply);
 
@@ -93,7 +93,7 @@ export function ThreadView({ initialThread, initialReplies, currentUser }: Threa
             <Badge className="bg-white text-black rounded-none uppercase tracking-widest text-[9px] font-bold border-none px-3 py-1">
               {initialThread.category}
             </Badge>
-            <span className="text-[9px] font-bold uppercase tracking-widest text-mono-400 flex items-center gap-2">
+            <span className="text-[9px] font-bold uppercase tracking-widest text-neutral-400 flex items-center gap-2">
               <Clock className="h-3.5 w-3.5" />
               Posted: {new Date(initialThread.created_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}
             </span>
@@ -115,7 +115,7 @@ export function ThreadView({ initialThread, initialReplies, currentUser }: Threa
               </div>
               <div>
                 <p className="text-xs font-bold uppercase tracking-widest text-white">{initialThread.author?.full_name || "Member"}</p>
-                <p className="text-[9px] text-mono-400 uppercase font-medium tracking-widest">AAM Member</p>
+                <p className="text-[9px] text-neutral-400 uppercase font-medium tracking-widest">AAM Member</p>
               </div>
             </div>
             <div className="flex items-center gap-4">
@@ -146,7 +146,7 @@ export function ThreadView({ initialThread, initialReplies, currentUser }: Threa
                 <CardHeader className="p-4 border-b border-white/20 flex flex-row items-center justify-between bg-white/5">
                   <div className="flex items-center gap-3">
                     <span className="text-[10px] font-bold uppercase tracking-widest text-white">{reply.author?.full_name || "Member"}</span>
-                    <span className="text-[9px] font-medium text-mono-400 uppercase tracking-widest">
+                    <span className="text-[9px] font-medium text-neutral-400 uppercase tracking-widest">
                       • {new Date(reply.created_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })}
                     </span>
                   </div>
@@ -164,7 +164,7 @@ export function ThreadView({ initialThread, initialReplies, currentUser }: Threa
           {replies.length === 0 && (
             <div className="py-16 text-center border-2 border-white/20 border-dashed rounded-none bg-transparent space-y-4">
               <MessageSquare className="h-12 w-12 text-white/20 mx-auto" />
-              <p className="text-[10px] font-bold uppercase tracking-widest text-mono-400">No replies yet. Be the first to join the discussion.</p>
+              <p className="text-[10px] font-bold uppercase tracking-widest text-neutral-400">No replies yet. Be the first to join the discussion.</p>
             </div>
           )}
         </div>
@@ -181,18 +181,18 @@ export function ThreadView({ initialThread, initialReplies, currentUser }: Threa
               <form onSubmit={handleSubmitReply}>
                 <Textarea
                   placeholder="Share your professional insights..."
-                  className="border-none rounded-none focus-visible:ring-0 min-h-[150px] p-6 text-sm font-medium resize-none bg-transparent text-white placeholder:text-mono-500"
+                  className="border-none rounded-none focus-visible:ring-0 min-h-[150px] p-6 text-sm font-medium resize-none bg-transparent text-white placeholder:text-neutral-500"
                   value={newReply}
                   onChange={(e) => setNewReply(e.target.value)}
                 />
                 <div className="p-6 bg-white/5 border-t border-white/20 flex flex-col md:flex-row justify-between items-center gap-6">
-                  <p className="text-[9px] font-medium uppercase tracking-widest text-mono-400 max-w-sm leading-relaxed text-center md:text-left">
+                  <p className="text-[9px] font-medium uppercase tracking-widest text-neutral-400 max-w-sm leading-relaxed text-center md:text-left">
                     Please ensure your contribution is professional and constructive.
                   </p>
                   <Button
                     type="submit"
                     disabled={submitting || !newReply.trim()}
-                    className="h-12 px-8 bg-white text-black hover:bg-mono-200 rounded-none font-bold uppercase tracking-widest text-[10px] transition-all group min-w-[160px]"
+                    className="h-12 px-8 bg-white text-black hover:bg-neutral-200 rounded-none font-bold uppercase tracking-widest text-[10px] transition-all group min-w-[160px]"
                   >
                     {submitting ? (
                       <Loader2 className="h-4 w-4 animate-spin text-black" />

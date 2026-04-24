@@ -1,3 +1,5 @@
+"use client";
+
 import { PageHeader } from "@/components/shared/PageHeader";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -15,10 +17,46 @@ import {
 import Link from "next/link";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
-import { getAllThreads } from "@/lib/mock-data";
+import { getAllThreads, deleteForumThread } from "@/lib/mock-data";
+import { useState, useMemo, useEffect } from "react";
+import { toast } from "react-hot-toast";
 
 export default function AdminForumPage() {
-  const threads = getAllThreads();
+  const [threads, setThreads] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [search, setSearch] = useState("");
+
+  useEffect(() => {
+    fetchThreads();
+  }, []);
+
+  async function fetchThreads() {
+    setLoading(true);
+    try {
+      const data = await getAllThreads();
+      setThreads(data);
+    } catch (error) {
+      toast.error("Failed to fetch threads");
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  const filteredThreads = useMemo(() => {
+    if (!search) return threads;
+    return threads.filter(t => 
+      t.title.toLowerCase().includes(search.toLowerCase()) || 
+      t.body.toLowerCase().includes(search.toLowerCase())
+    );
+  }, [threads, search]);
+
+  const handleThreadDelete = (id: string) => {
+    if (confirm("Are you sure you want to delete this thread? This action cannot be undone.")) {
+      deleteForumThread(id);
+      setThreads(prev => prev.filter(t => t.id !== id));
+      toast.success("Thread deleted");
+    }
+  };
 
   return (
     <div className="container py-24 space-y-24">
@@ -33,10 +71,15 @@ export default function AdminForumPage() {
       <div className="flex flex-col lg:flex-row gap-16">
         <div className="lg:w-80 space-y-12">
           <div className="space-y-4">
-            <label className="text-[10px] font-black uppercase tracking-[0.3em] text-mono-400">INDEX SEARCH</label>
+            <label className="text-[10px] font-black uppercase tracking-[0.3em] text-white/40">INDEX SEARCH</label>
             <div className="relative">
               <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-white" />
-              <Input placeholder="KEYWORD QUERY..." className="pl-12 border-2 border-white/20 bg-transparent text-white rounded-none h-14 font-black uppercase tracking-widest text-[10px] focus-visible:ring-0 placeholder:text-mono-500" />
+              <Input 
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                placeholder="KEYWORD QUERY..." 
+                className="pl-12 border-2 border-white/20 bg-transparent text-white rounded-none h-14 font-black uppercase tracking-widest text-[10px] focus-visible:ring-0 placeholder:text-white/50" 
+              />
             </div>
           </div>
 
@@ -47,7 +90,7 @@ export default function AdminForumPage() {
                 <span>ALL DISCOURSES</span>
                 <Badge className="bg-black text-white hover:bg-black rounded-none">{threads?.length || 0}</Badge>
               </button>
-              <button className="w-full flex justify-between items-center px-6 py-4 rounded-none border-2 border-transparent hover:border-white font-black uppercase tracking-widest text-[10px] transition-all text-mono-400 hover:text-white">
+              <button className="w-full flex justify-between items-center px-6 py-4 rounded-none border-2 border-transparent hover:border-white font-black uppercase tracking-widest text-[10px] transition-all text-white/40 hover:text-white">
                 <span>FLAGGED REPLIES</span>
                 <Badge variant="outline" className="rounded-none border-white text-white">3</Badge>
               </button>
@@ -65,9 +108,9 @@ export default function AdminForumPage() {
         <div className="flex-grow space-y-10">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 border-b-2 border-white/20 pb-4">
             <span className="text-[10px] font-black text-white uppercase tracking-[0.3em]">
-              {threads?.length || 0} ACTIVE THREADS
+              {filteredThreads?.length || 0} ACTIVE THREADS
             </span>
-            <Button className="h-12 px-8 bg-white text-black hover:bg-mono-200 rounded-none font-black uppercase tracking-widest text-[10px] transition-all" asChild>
+            <Button className="h-12 px-8 bg-white text-black hover:bg-white/80 rounded-none font-black uppercase tracking-widest text-[10px] transition-all" asChild>
               <Link href="/admin/forum/new">
                 <Plus className="mr-3 h-4 w-4" />
                 INITIATE OFFICIAL THREAD
@@ -76,7 +119,7 @@ export default function AdminForumPage() {
           </div>
 
           <div className="space-y-6">
-            {threads?.map((thread) => (
+            {filteredThreads?.map((thread) => (
               <Card key={thread.id} className="border-2 border-white/20 bg-transparent rounded-none shadow-none hover:bg-white/5 transition-all overflow-hidden group relative">
                 {thread.is_pinned && (
                     <div className="absolute top-0 right-0 bg-white text-black px-3 py-1 flex items-center gap-2">
@@ -96,7 +139,7 @@ export default function AdminForumPage() {
                       <Badge className="bg-white text-black rounded-none text-[9px] font-black uppercase tracking-widest border-none px-3 py-1">
                         {thread.category}
                       </Badge>
-                      <div className="flex items-center gap-2 text-[9px] font-black uppercase tracking-widest text-mono-400">
+                      <div className="flex items-center gap-2 text-[9px] font-black uppercase tracking-widest text-white/40">
                         <Clock className="h-3 w-3" />
                         <span>LOGGED: {new Date(thread.updated_at || thread.created_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }).toUpperCase()}</span>
                       </div>
@@ -131,7 +174,10 @@ export default function AdminForumPage() {
                     <Link href={`/admin/forum/${thread.id}`} className="h-12 w-12 border-2 border-white/20 flex items-center justify-center hover:bg-white hover:text-black transition-all text-white">
                       <ChevronRight className="h-6 w-6" />
                     </Link>
-                    <button className="h-12 w-12 border-2 border-white/20 flex items-center justify-center hover:bg-red-600 hover:text-white hover:border-red-600 transition-all text-white">
+                    <button 
+                      onClick={() => handleThreadDelete(thread.id)}
+                      className="h-12 w-12 border-2 border-white/20 flex items-center justify-center hover:bg-red-600 hover:text-white hover:border-red-600 transition-all text-white"
+                    >
                         <Trash2 className="h-5 w-5" />
                     </button>
                   </div>
@@ -139,10 +185,10 @@ export default function AdminForumPage() {
               </Card>
             ))}
 
-            {(!threads || threads.length === 0) && (
+            {(!filteredThreads || filteredThreads.length === 0) && (
               <div className="py-32 text-center border-4 border-white/20 border-dashed rounded-none bg-black space-y-6">
                 <MessageSquare className="h-16 w-16 text-white mx-auto opacity-10" />
-                <p className="text-[10px] font-black uppercase tracking-[0.4em] text-mono-400">NO DISCOURSES DETECTED.</p>
+                <p className="text-[10px] font-black uppercase tracking-[0.4em] text-white/40">NO DISCOURSES DETECTED.</p>
               </div>
             )}
           </div>

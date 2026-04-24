@@ -6,6 +6,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
+import { saveRegistrationApplication } from "@/lib/mock-data";
+import { RegistrationApplication } from "@/types";
 
 const categories = [
   { id: "professional", title: "Professional Member", desc: "Fully qualified architects with recognised degrees and min. 2 years experience." },
@@ -29,20 +31,42 @@ export default function RegisterPage() {
     agreed_to_terms: false
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!formData.agreed_to_terms) return;
+    
     setSubmitting(true);
-    setTimeout(() => {
-      setIsSuccess(true);
+    const supabase = (await import("@/lib/supabase/client")).createClient();
+    
+    const { error } = await supabase
+      .from('membership_applications')
+      .insert({
+        full_name: formData.applicant_name,
+        email: formData.email,
+        phone: formData.phone,
+        category_applied: formData.category_applied,
+        university: formData.university,
+        graduation_year: formData.graduation_year,
+        experience_years: formData.experience_years,
+        documents_url: formData.documents_url,
+        status: 'new'
+      });
+
+    if (error) {
+      console.error("Submission error:", error);
       setSubmitting(false);
-    }, 1500);
+      return;
+    }
+
+    setIsSuccess(true);
+    setSubmitting(false);
   };
 
   if (isSuccess) {
     return (
       <main className="min-h-screen bg-black pt-32">
         <div className="container mx-auto px-6 max-w-2xl text-center py-20">
-          <div className="w-20 h-20 bg-white text-black flex items-center justify-center mx-auto mb-10">
+          <div className="w-20 h-20 bg-black border border-white text-white flex items-center justify-center mx-auto mb-10">
             <svg className="w-10 h-10" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
             </svg>

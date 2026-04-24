@@ -2,7 +2,7 @@
 
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { jobListingSchema, JobListingInput } from "@/lib/validations";
+import { jobSchema, JobInput as JobListingInput } from "@/lib/validations";
 import {
     Form,
     FormControl,
@@ -30,14 +30,14 @@ export function JobForm({
     isLoading = false
 }: JobFormProps) {
     const form = useForm<JobListingInput>({
-        resolver: zodResolver(jobListingSchema),
-        defaultValues: initialData || {
+        resolver: zodResolver(jobSchema),
+        defaultValues: initialData ?? {
             title: "",
-            company: "",
+            company_name: "",
             description: "",
             deadline: "",
             is_active: true
-        } as any
+        }
     });
 
     return (
@@ -65,7 +65,7 @@ export function JobForm({
 
                         <FormField
                             control={form.control}
-                            name="company"
+                            name="company_name"
                             render={({ field }) => (
                                 <FormItem className="space-y-3">
                                     <FormLabel className="text-[10px] font-black uppercase tracking-widest">Employing Entity</FormLabel>
@@ -109,7 +109,7 @@ export function JobForm({
                                 <FormItem className="p-8 border-4 border-black bg-white flex items-center justify-between">
                                     <div className="space-y-1">
                                         <FormLabel className="text-[10px] font-black uppercase tracking-widest">Vacancy Status</FormLabel>
-                                        <p className="text-[10px] font-bold text-mono-400 uppercase tracking-widest">Toggle visibility on the board.</p>
+                                        <p className="text-[10px] font-bold text-neutral-400 uppercase tracking-widest">Toggle visibility on the board.</p>
                                     </div>
                                     <FormControl>
                                         <Switch
@@ -146,7 +146,7 @@ export function JobForm({
                     <Button
                         type="submit"
                         disabled={isLoading}
-                        className="h-20 flex-1 bg-black text-white hover:bg-mono-800 rounded-none font-black uppercase tracking-[0.2em] text-xs border-2 border-black transition-all"
+                        className="h-20 flex-1 bg-black text-white hover:bg-neutral-800 rounded-none font-black uppercase tracking-[0.2em] text-xs border-2 border-black transition-all"
                     >
                         {isLoading ? <Loader2 className="mr-3 h-5 w-5 animate-spin" /> : <Save className="mr-3 h-5 w-5" />}
                         COMMIT VACANCY

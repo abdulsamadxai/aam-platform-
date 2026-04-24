@@ -63,11 +63,11 @@ export default function NewBroadcastPage() {
           </div>
           <div className="space-y-4">
             <CardTitle className="text-4xl font-black uppercase tracking-tighter">DISPATCH CONFIRMED</CardTitle>
-            <CardDescription className="text-sm font-black uppercase tracking-widest text-mono-400">
+            <CardDescription className="text-sm font-black uppercase tracking-widest text-neutral-400">
               {type} BROADCAST HAS BEEN TRANSMITTED TO {audience} REGISTRY NODES.
             </CardDescription>
           </div>
-          <Button asChild className="h-16 w-full bg-white text-black hover:bg-mono-200 font-black uppercase tracking-widest text-[10px] rounded-none border-2 border-white transition-all">
+          <Button asChild className="h-16 w-full bg-white text-black hover:bg-neutral-200 font-black uppercase tracking-widest text-[10px] rounded-none border-2 border-white transition-all">
             <Link href="/admin">RETURN TO COMMAND CENTER</Link>
           </Button>
         </Card>
@@ -95,23 +95,23 @@ export default function NewBroadcastPage() {
 
       <div className="space-y-4 border-l-8 border-black pl-8">
         <h1 className="text-5xl md:text-8xl font-black uppercase tracking-tighter leading-none">Global <br /> Dispatch</h1>
-        <p className="text-sm font-black uppercase tracking-[0.4em] text-mono-400">Institutional Communication Systems</p>
+        <p className="text-sm font-black uppercase tracking-[0.4em] text-neutral-400">Institutional Communication Systems</p>
       </div>
 
       <form onSubmit={handleSend}>
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-16">
           <div className="lg:col-span-2 space-y-12">
             <Card className="border-4 border-black rounded-none shadow-none overflow-hidden bg-white">
-              <CardHeader className="p-10 border-b-2 border-black bg-mono-50">
+              <CardHeader className="p-10 border-b-2 border-black bg-neutral-50">
                 <CardTitle className="text-xs font-black uppercase tracking-[0.4em]">DISPATCH PARAMETERS</CardTitle>
-                <CardDescription className="text-[10px] font-bold text-mono-400 uppercase tracking-widest mt-2">Configure institutional transmission protocol</CardDescription>
+                <CardDescription className="text-[10px] font-bold text-neutral-400 uppercase tracking-widest mt-2">Configure institutional transmission protocol</CardDescription>
               </CardHeader>
               <CardContent className="p-10 space-y-12">
                 <div className="flex p-2 bg-black rounded-none w-fit border-2 border-black">
                   <button
                     type="button"
                     onClick={() => setType("email")}
-                    className={`flex items-center gap-3 px-8 py-3 rounded-none text-[10px] font-black uppercase tracking-widest transition-all ${type === "email" ? "bg-white text-black shadow-sm" : "text-mono-500 hover:text-white"
+                    className={`flex items-center gap-3 px-8 py-3 rounded-none text-[10px] font-black uppercase tracking-widest transition-all ${type === "email" ? "bg-white text-black shadow-sm" : "text-neutral-500 hover:text-white"
                       }`}
                   >
                     <Mail className="h-4 w-4" />
@@ -120,7 +120,7 @@ export default function NewBroadcastPage() {
                   <button
                     type="button"
                     onClick={() => setType("sms")}
-                    className={`flex items-center gap-3 px-8 py-3 rounded-none text-[10px] font-black uppercase tracking-widest transition-all ${type === "sms" ? "bg-white text-black shadow-sm" : "text-mono-500 hover:text-white"
+                    className={`flex items-center gap-3 px-8 py-3 rounded-none text-[10px] font-black uppercase tracking-widest transition-all ${type === "sms" ? "bg-white text-black shadow-sm" : "text-neutral-500 hover:text-white"
                       }`}
                   >
                     <Smartphone className="h-4 w-4" />
@@ -134,7 +134,7 @@ export default function NewBroadcastPage() {
                     <Input
                       id="subject"
                       placeholder="E.G. OFFICIAL NOTICE: INSTITUTIONAL UPDATE..."
-                      className="border-2 border-black rounded-none h-14 px-6 font-bold uppercase tracking-widest text-xs focus-visible:ring-0 placeholder:text-mono-300"
+                      className="border-2 border-black rounded-none h-14 px-6 font-bold uppercase tracking-widest text-xs focus-visible:ring-0 placeholder:text-neutral-300"
                       value={subject}
                       onChange={(e) => setSubject(e.target.value)}
                       required={type === "email"}
@@ -147,21 +147,21 @@ export default function NewBroadcastPage() {
                   <Textarea
                     id="content"
                     placeholder={type === "email" ? "WRITE YOUR INSTITUTIONAL COMMUNICATION HERE..." : "TYPE YOUR SMS TRANSMISSION..."}
-                    className={`border-2 border-black rounded-none p-8 font-bold uppercase tracking-widest text-xs focus-visible:ring-0 placeholder:text-mono-200 resize-none ${type === 'email' ? 'min-h-[400px]' : 'min-h-[160px]'}`}
+                    className={`border-2 border-black rounded-none p-8 font-bold uppercase tracking-widest text-xs focus-visible:ring-0 placeholder:text-neutral-200 resize-none ${type === 'email' ? 'min-h-[400px]' : 'min-h-[160px]'}`}
                     value={content}
                     onChange={(e) => setContent(e.target.value)}
                     maxLength={type === "sms" ? 160 : undefined}
                     required
                   />
                   {type === "sms" && (
-                    <div className="flex justify-between items-center text-[9px] font-black uppercase tracking-[0.2em] text-mono-400 mt-2">
+                    <div className="flex justify-between items-center text-[9px] font-black uppercase tracking-[0.2em] text-neutral-400 mt-2">
                       <span>{content.length} / 160 CHARACTER UNITS</span>
                       {content.length > 150 && <span className="text-black">LIMIT IMMINENT</span>}
                     </div>
                   )}
                 </div>
               </CardContent>
-              <CardFooter className="bg-mono-50 border-t-2 border-black p-10 flex flex-col md:flex-row justify-between items-center gap-10">
+              <CardFooter className="bg-neutral-50 border-t-2 border-black p-10 flex flex-col md:flex-row justify-between items-center gap-10">
                 <div className="flex items-center gap-4 text-black p-4 border-2 border-black bg-white">
                   <ShieldAlert className="h-6 w-6 text-black shrink-0" />
                   <p className="text-[9px] font-black uppercase tracking-widest leading-tight">AUDIT CONTENT CAREFULLY. TRANSMISSION IS IRREVERSIBLE ONCE DISPATCHED.</p>
@@ -169,7 +169,7 @@ export default function NewBroadcastPage() {
                 <Button
                   type="submit"
                   disabled={loading || !content}
-                  className="h-16 px-10 bg-black text-white hover:bg-mono-800 rounded-none font-black uppercase tracking-widest text-[10px] border-2 border-black transition-all group min-w-[240px]"
+                  className="h-16 px-10 bg-black text-white hover:bg-neutral-800 rounded-none font-black uppercase tracking-widest text-[10px] border-2 border-black transition-all group min-w-[240px]"
                 >
                   {loading ? (
                     <Loader2 className="h-5 w-5 animate-spin" />
@@ -230,15 +230,15 @@ export default function NewBroadcastPage() {
                 </div>
 
                 <div className="p-8 bg-black text-white rounded-none text-center space-y-2 border-2 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,0.1)]">
-                  <p className="text-[9px] font-black uppercase tracking-[0.4em] text-mono-400">ESTIMATED IMPACT</p>
+                  <p className="text-[9px] font-black uppercase tracking-[0.4em] text-neutral-400">ESTIMATED IMPACT</p>
                   <p className="text-4xl font-black tracking-tighter">{audience === 'all' ? '239' : audience === 'voting' ? '142' : '3'} NODES</p>
                 </div>
               </CardContent>
             </Card>
 
-            <div className="p-8 border-4 border-black border-dashed rounded-none space-y-6 text-center bg-mono-50">
+            <div className="p-8 border-4 border-black border-dashed rounded-none space-y-6 text-center bg-neutral-50">
               <h4 className="text-[10px] font-black uppercase tracking-[0.4em]">PROTOCOL ADVISORY</h4>
-              <p className="text-[9px] font-black uppercase tracking-widest leading-relaxed text-mono-500">
+              <p className="text-[9px] font-black uppercase tracking-widest leading-relaxed text-neutral-500">
                 DISPATCHES ARE IMMEDIATE AND IRREVOCABLE. ENSURE ALIGNMENT WITH EXECUTIVE COMMITTEE MANDATES FOR INSTITUTIONAL COMMUNICATIONS.
               </p>
             </div>

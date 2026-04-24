@@ -1,12 +1,10 @@
 "use client";
 
-import { useMemo } from "react";
-import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
+import { useMemo, useState, useEffect } from "react";
 import {
   Newspaper,
   Calendar,
   Briefcase,
-  Trophy,
   Users,
   ShieldCheck,
   Building2,
@@ -14,7 +12,8 @@ import {
   Image as ImageIcon,
   Activity,
   ClipboardList,
-  MessageSquare
+  MessageSquare,
+  Loader2
 } from "lucide-react";
 import Link from "next/link";
 import {
@@ -23,32 +22,123 @@ import {
   getAllMembers,
   getAllJobs,
   getAllTraining,
-  getAllAlbums,
+  getAllGalleryAlbums,
   getAllFirms,
   getAllTrainingRegistrations,
   getAllThreads,
-  getAllAGMRecords
+  getAllAGMRecords,
+  getAllJobApplications,
 } from "@/lib/mock-data";
+import { formatDistanceToNow } from "date-fns";
+import { createClient } from "@/lib/supabase/client";
+import { toast } from "react-hot-toast";
 
 export default function AdminDashboard() {
-  const stats = useMemo(() => ({
-    members: getAllMembers().length,
-    firms: getAllFirms().length,
-    news: getAllNews().length,
-    events: getAllEvents().length,
-    jobs: getAllJobs().length,
-    training: getAllTraining().length,
-    trainingApps: getAllTrainingRegistrations().length,
-    gallery: getAllAlbums().length,
-    agm: getAllAGMRecords().length,
-    threads: getAllThreads().length
-  }), []);
+  const [stats, setStats] = useState({
+    members: 0,
+    firms: 0,
+    news: 0,
+    events: 0,
+    jobs: 0,
+    training: 0,
+    trainingApps: 0,
+    gallery: 0,
+    agm: 0,
+    threads: 0,
+    jobApps: [] as any[],
+    trainingRegs: [] as any[],
+    contactSubs: [] as any[]
+  });
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchStats();
+  }, []);
+
+  async function fetchStats() {
+    setLoading(true);
+    try {
+      const supabase = createClient();
+      
+      const safeFetch = async (fn: () => Promise<any>, fallback: any = []) => {
+        try {
+          return await fn();
+        } catch (e) {
+          console.error(`Fetch failed:`, e);
+          return fallback;
+        }
+      };
+
+      const [
+        news, events, members, jobs, training, 
+        gallery, firms, trainingRegs, threads, 
+        agm, jobApps, contactSubsResult
+      ] = await Promise.all([
+        safeFetch(getAllNews),
+        safeFetch(getAllEvents),
+        safeFetch(getAllMembers),
+        safeFetch(getAllJobs),
+        safeFetch(getAllTraining),
+        safeFetch(getAllGalleryAlbums),
+        safeFetch(getAllFirms),
+        safeFetch(getAllTrainingRegistrations),
+        safeFetch(getAllThreads),
+        safeFetch(getAllAGMRecords),
+        safeFetch(getAllJobApplications),
+        supabase.from('contact_submissions').select('*').order('created_at', { ascending: false }).limit(10)
+      ]);
+
+      setStats({
+        news: news.length,
+        events: events.length,
+        members: members.length,
+        jobs: jobs.length,
+        training: training.length,
+        gallery: gallery.length,
+        firms: firms.length,
+        trainingApps: trainingRegs.length,
+        threads: threads.length,
+        agm: agm.length,
+        jobApps,
+        trainingRegs,
+        contactSubs: contactSubsResult.data || []
+      });
+    } catch (error) {
+      console.error(error);
+      toast.error("Failed to synchronize dashboard telemetry");
+    } finally {
+        setLoading(false);
+    }
+  }
+
+  const recentActivity = useMemo(() => {
+    const activities = [
+      ...stats.jobApps.map(a => ({ 
+        action: `Job App: ${a.full_name} (${a.job_title})`, 
+        time: a.applied_at 
+      })),
+      ...stats.trainingRegs.map(r => ({ 
+        action: `Training Reg: ${r.full_name}`, 
+        time: r.applied_at 
+      })),
+      ...stats.contactSubs.map(c => ({ 
+        action: `Contact: ${c.full_name || 'Inquiry'} - ${c.subject}`, 
+        time: c.created_at 
+      }))
+    ].sort((a, b) => new Date(b.time).getTime() - new Date(a.time).getTime())
+    .slice(0, 5);
+
+    return activities.length > 0 ? activities : [
+      { action: "Admin Session Initiated", time: new Date().toISOString() },
+      { action: "Registry Synchronization Active", time: new Date().toISOString() }
+    ];
+  }, [stats]);
 
   const modules = [
     { name: "Global Newsfeed", icon: Newspaper, count: stats.news, href: "/news" },
     { name: "Events Calendar", icon: Calendar, count: stats.events, href: "/events" },
     { name: "Job Vacancies", icon: Briefcase, count: stats.jobs, href: "/jobs" },
-    { name: "Job Applications", icon: ClipboardList, count: "→", href: "/admin/applications" },
+    { name: "Job Applications", icon: ClipboardList, count: stats.jobApps.length, href: "/admin/applications" },
     { name: "Member Directory", icon: Users, count: stats.members, href: "/members" },
     { name: "Registered Firms", icon: Building2, count: stats.firms, href: "/firms" },
     { name: "Training Academy", icon: ShieldCheck, count: stats.training, href: "/training" },
@@ -68,17 +158,25 @@ export default function AdminDashboard() {
       <div className="relative z-10 space-y-24 py-12 container mx-auto px-6 max-w-7xl">
 
         {/* Header */}
-        <div className="border-b border-white/10 pb-12 pt-10">
-          <div className="flex items-center gap-4 mb-6">
-            <div className="h-2 w-2 bg-white animate-pulse" />
-            <span className="text-[10px] font-black uppercase tracking-[0.3em] text-white/50">Admin Protocol_Active</span>
+        <div className="border-b border-white/10 pb-12 pt-10 flex flex-col md:flex-row justify-between items-start md:items-end gap-8">
+          <div>
+            <div className="flex items-center gap-4 mb-6">
+                <div className="h-2 w-2 bg-white animate-pulse" />
+                <span className="text-[10px] font-black uppercase tracking-[0.3em] text-white/50">Admin Protocol_Active</span>
+            </div>
+            <h1 className="text-5xl md:text-7xl font-black uppercase tracking-tighter leading-none mb-6">
+                Command <br className="hidden md:block" /> Center
+            </h1>
+            <p className="text-white/40 text-lg md:text-xl font-medium max-w-2xl leading-relaxed">
+                Institutional Management Protocol. Oversee global architecture platforms, manage registered entities, and synchronize external content directly via in-situ editing.
+            </p>
           </div>
-          <h1 className="text-5xl md:text-7xl font-black uppercase tracking-tighter leading-none mb-6">
-            Command <br className="hidden md:block" /> Center
-          </h1>
-          <p className="text-white/40 text-lg md:text-xl font-medium max-w-2xl leading-relaxed">
-            Institutional Management Protocol. Oversee global architecture platforms, manage registered entities, and synchronize external content directly via in-situ editing.
-          </p>
+          {loading && (
+            <div className="flex items-center gap-3 text-white/20 animate-pulse">
+                <Loader2 className="w-5 h-5 animate-spin" />
+                <span className="text-[10px] font-black uppercase tracking-widest">Syncing Telemetry...</span>
+            </div>
+          )}
         </div>
 
         {/* Dashboard Grid */}
@@ -160,19 +258,20 @@ export default function AdminDashboard() {
               </div>
 
               <div className="space-y-6">
-                {[
-                  { action: "Admin Session Initiated", time: "2 mins ago" },
-                  { action: "Member Registry Sync", time: "3 hours ago" },
-                  { action: "System Backup Completed", time: "12 hours ago" },
-                ].map((log, i) => (
+                {recentActivity.map((log, i) => (
                   <div key={i} className="flex gap-4 items-start border-l border-white/20 pl-4 relative">
                     <div className="absolute -left-[5px] top-1.5 h-2 w-2 rounded-full bg-white/20 border-2 border-black" />
                     <div className="space-y-1">
                       <p className="text-[10px] font-black uppercase tracking-tight text-white">{log.action}</p>
-                      <p className="text-[9px] font-bold text-white/40 uppercase tracking-widest">{log.time}</p>
+                      <p className="text-[9px] font-bold text-white/40 uppercase tracking-widest">
+                        {formatDistanceToNow(new Date(log.time), { addSuffix: true })}
+                      </p>
                     </div>
                   </div>
                 ))}
+                {!loading && recentActivity.length === 0 && (
+                    <div className="text-[10px] text-white/20 uppercase tracking-widest font-bold">No recent external activity logs.</div>
+                )}
               </div>
             </div>
           </div>

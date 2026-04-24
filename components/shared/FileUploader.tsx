@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useRef } from "react";
+import Image from "next/image";
 import { createClient } from "@/lib/supabase/client";
 import {
     Upload,
@@ -59,9 +60,8 @@ export function FileUploader({
 
             setPreview(publicUrl);
             onUploadComplete(publicUrl);
-        } catch (err: any) {
-            setError(err.message || "Protocol transmission failure.");
-            console.error("[Storage] Upload Error:", err);
+        } catch (err: unknown) {
+            setError(err instanceof Error ? err.message : "Upload failed.");
         } finally {
             setIsUploading(false);
         }
@@ -103,11 +103,11 @@ export function FileUploader({
 
                 {preview ? (
                     <div className="space-y-6">
-                        <div className="relative aspect-video max-h-48 mx-auto border-2 border-black overflow-hidden bg-mono-100">
-                            <img src={preview} alt="Upload preview" className="w-full h-full object-cover grayscale" />
+                        <div className="relative aspect-video max-h-48 mx-auto border-2 border-black overflow-hidden bg-neutral-100">
+                            <Image src={preview} alt="Upload preview" fill className="object-cover grayscale" />
                             <button
                                 onClick={clear}
-                                className="absolute top-2 right-2 bg-black text-white p-1 hover:bg-mono-800"
+                                className="absolute top-2 right-2 bg-black text-white p-1 hover:bg-neutral-800"
                             >
                                 <X className="h-4 w-4" />
                             </button>
@@ -126,7 +126,7 @@ export function FileUploader({
                             <p className="text-xs font-black uppercase tracking-[0.2em]">
                                 {isUploading ? "TRANSMITTING DATA..." : "DRAG & DROP ASSET"}
                             </p>
-                            <p className="text-[9px] font-bold text-mono-400 uppercase tracking-widest">
+                            <p className="text-[9px] font-bold text-neutral-400 uppercase tracking-widest">
                                 OR CLICK TO BROWSE LOCAL STORAGE
                             </p>
                         </div>
@@ -134,7 +134,7 @@ export function FileUploader({
                             type="button"
                             onClick={() => fileInputRef.current?.click()}
                             disabled={isUploading}
-                            className="bg-black text-white hover:bg-mono-800 rounded-none h-12 px-8 font-black uppercase tracking-widest text-[10px]"
+                            className="bg-black text-white hover:bg-neutral-800 rounded-none h-12 px-8 font-black uppercase tracking-widest text-[10px]"
                         >
                             {label}
                         </Button>

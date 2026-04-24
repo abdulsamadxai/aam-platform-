@@ -3,9 +3,10 @@
 import { getAlbumById } from "@/lib/mock-data";
 import { notFound, useParams } from "next/navigation";
 import Link from "next/link";
-import { ArrowLeft, Calendar as CalendarIcon, Expand, Image as ImageIcon } from "lucide-react";
+import { ArrowLeft, Calendar as CalendarIcon, Expand, ImageIcon, Loader2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { GalleryAlbum } from "@/types";
+import Image from "next/image";
 
 export default function GalleryAlbumPage() {
     const params = useParams();
@@ -14,17 +15,25 @@ export default function GalleryAlbumPage() {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        const data = getAlbumById(id);
-        if (data) {
-            setAlbum(data);
-        }
-        setLoading(false);
+        fetchAlbum();
     }, [id]);
+
+    async function fetchAlbum() {
+        setLoading(true);
+        try {
+            const data = await getAlbumById(id);
+            setAlbum(data);
+        } catch (error) {
+            console.error(error);
+        } finally {
+            setLoading(false);
+        }
+    }
 
     if (loading) {
         return (
             <main className="min-h-screen bg-black pt-32 flex items-center justify-center">
-                <div className="text-white uppercase tracking-widest text-xs animate-pulse">Loading Archive...</div>
+                <Loader2 className="w-8 h-8 animate-spin text-white/20" />
             </main>
         );
     }
@@ -63,10 +72,11 @@ export default function GalleryAlbumPage() {
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 pt-12">
                         {photos.map((photo, index) => (
                             <div key={photo.id} className="group relative aspect-square bg-white/5 border border-white/5 overflow-hidden cursor-pointer">
-                                <img
+                                <Image
                                     src={photo.url}
                                     alt={photo.caption || ""}
-                                    className="w-full h-full object-cover grayscale transition-all duration-700 group-hover:grayscale-0 group-hover:scale-110"
+                                    fill
+                                    className="object-cover grayscale transition-all duration-700 group-hover:grayscale-0 group-hover:scale-110"
                                 />
                                 <div className="absolute inset-0 bg-black/80 opacity-0 group-hover:opacity-100 transition-all duration-500 flex flex-col justify-end p-10 transform translate-y-4 group-hover:translate-y-0">
                                     <div className="space-y-4">

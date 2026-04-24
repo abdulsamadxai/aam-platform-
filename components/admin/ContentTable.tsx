@@ -21,25 +21,25 @@ import { Input } from "@/components/ui/input";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
 
-interface Column {
+interface Column<T> {
     key: string;
     label: string;
-    render?: (row: any) => React.ReactNode;
+    render?: (row: T) => React.ReactNode;
 }
 
-interface ContentTableProps {
-    columns: Column[];
-    data: any[];
+interface ContentTableProps<T> {
+    columns: Column<T>[];
+    data: T[];
     isLoading?: boolean;
-    onEdit?: (row: any) => void;
-    onDelete?: (row: any) => void;
-    onView?: (row: any) => void;
-    searchKey?: string;
+    onEdit?: (row: T) => void;
+    onDelete?: (row: T) => void;
+    onView?: (row: T) => void;
+    searchKey?: keyof T;
     placeholder?: string;
     emptyMessage?: string;
 }
 
-export function ContentTable({
+export function ContentTable<T extends Record<string, any>>({
     columns,
     data,
     isLoading = false,
@@ -49,7 +49,7 @@ export function ContentTable({
     searchKey,
     placeholder = "SEARCH REGISTRY...",
     emptyMessage = "DATABASE EMPTY. NO ENTRIES DETECTED."
-}: ContentTableProps) {
+}: ContentTableProps<T>) {
     const [search, setSearch] = useState("");
 
     const filteredData = searchKey && search
@@ -62,7 +62,7 @@ export function ContentTable({
         <div className="space-y-8">
             {searchKey && (
                 <div className="relative">
-                    <Search className="absolute left-6 top-1/2 -translate-y-1/2 h-5 w-5 text-mono-400" />
+                    <Search className="absolute left-6 top-1/2 -translate-y-1/2 h-5 w-5 text-neutral-400" />
                     <Input
                         placeholder={placeholder}
                         className="pl-16 border-4 border-black rounded-none h-16 font-black uppercase tracking-widest text-xs focus-visible:ring-0 bg-white shadow-[8px_8px_0px_0px_rgba(0,0,0,0.05)]"
@@ -101,7 +101,7 @@ export function ContentTable({
                                 <TableCell colSpan={columns.length + 1} className="h-64 text-center">
                                     <div className="flex flex-col items-center justify-center gap-6">
                                         <Loader2 className="h-10 w-10 animate-spin text-black" />
-                                        <span className="text-[10px] font-black uppercase tracking-[0.4em] text-mono-400">SYNCHRONIZING ENTRIES...</span>
+                                        <span className="text-[10px] font-black uppercase tracking-[0.4em] text-neutral-400">SYNCHRONIZING ENTRIES...</span>
                                     </div>
                                 </TableCell>
                             </TableRow>
@@ -109,14 +109,14 @@ export function ContentTable({
                             <TableRow>
                                 <TableCell colSpan={columns.length + 1} className="h-64 text-center">
                                     <div className="flex flex-col items-center justify-center gap-6">
-                                        <FilterX className="h-10 w-10 text-mono-200" />
-                                        <p className="text-[10px] font-black uppercase tracking-[0.4em] text-mono-400">{emptyMessage}</p>
+                                        <FilterX className="h-10 w-10 text-neutral-200" />
+                                        <p className="text-[10px] font-black uppercase tracking-[0.4em] text-neutral-400">{emptyMessage}</p>
                                     </div>
                                 </TableCell>
                             </TableRow>
                         ) : (
                             filteredData.map((row, rowIdx) => (
-                                <TableRow key={row.id || rowIdx} className="border-b-2 border-black/5 last:border-none hover:bg-mono-50 transition-colors">
+                                <TableRow key={row.id || row.slug || row.email || rowIdx} className="border-b-2 border-black/5 last:border-none hover:bg-neutral-50 transition-colors">
                                     {columns.map((col, colIdx) => (
                                         <TableCell
                                             key={col.key}

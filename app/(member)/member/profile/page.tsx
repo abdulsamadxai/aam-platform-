@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Camera, Save, CheckCircle2, User } from "lucide-react";
+import Image from "next/image";
 
 export default function MemberProfile() {
   const [profile, setProfile] = useState<any>(null);
@@ -18,7 +19,7 @@ export default function MemberProfile() {
     // Mock fetch profile
     const fetchProfile = async () => {
       await new Promise(resolve => setTimeout(resolve, 500));
-      const members = getActiveMembers();
+      const members = await getActiveMembers();
       if (members.length > 0) {
         setProfile(members[0]);
       }
@@ -59,8 +60,8 @@ export default function MemberProfile() {
         <div className="space-y-8">
           <div className="bg-aam-near-black p-10 border border-white/5 text-center space-y-6">
             <div className="relative mx-auto w-32 h-32 bg-black border border-white/10 flex items-center justify-center">
-              {profile.avatar_url ? (
-                <img src={profile.avatar_url} className="w-full h-full object-cover" alt="Profile" />
+              {profile?.avatar_url ? (
+                <Image src={profile.avatar_url} fill className="object-cover" alt="Profile" />
               ) : (
                 <User className="w-12 h-12 text-aam-dark-grey" />
               )}

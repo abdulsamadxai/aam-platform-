@@ -3,7 +3,7 @@ import { z } from "zod";
 export const newsPostSchema = z.object({
     title: z.string().min(5, "REQUIRED_LENGTH_NOT_MET"),
     slug: z.string().min(3, "INVALID_SLUG_PROTOCOL"),
-    content: z.string().min(20, "BODY_REQUIREMENT_MINIMUM_NOT_MET"),
+    body: z.string().min(20, "BODY_REQUIREMENT_MINIMUM_NOT_MET"),
     category: z.string(),
     is_published: z.boolean(),
 });
@@ -52,26 +52,6 @@ export const competitionSchema = z.object({
 });
 
 export type CompetitionInput = z.infer<typeof competitionSchema>;
-
-export const jobListingSchema = z.object({
-    title: z.string().min(5, "TITLE_MINIMUM_NOT_MET"),
-    company: z.string().min(2, "IDENTITY_REQUIRED"),
-    description: z.string().min(20, "SPECIFICATION_MINIMUM_NOT_MET"),
-    deadline: z.string().optional(),
-    is_active: z.boolean(),
-});
-
-export type JobListingInput = z.infer<typeof jobListingSchema>;
-
-export const trainingProgrammeSchema = z.object({
-    title: z.string().min(5, "TITLE_MINIMUM_NOT_MET"),
-    description: z.string().min(20, "SYLLABUS_MINIMUM_NOT_MET"),
-    schedule: z.string().min(5, "TEMPORAL_DATA_REQUIRED"),
-    registration_url: z.string().url().optional().or(z.literal("")),
-    is_published: z.boolean(),
-});
-
-export type TrainingProgrammeInput = z.infer<typeof trainingProgrammeSchema>;
 
 export const sitePageSchema = z.object({
     title: z.string().min(3, "TITLE_MINIMUM_NOT_MET"),

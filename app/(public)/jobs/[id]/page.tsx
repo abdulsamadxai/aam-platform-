@@ -11,7 +11,7 @@ interface JobPageProps {
 export default async function JobDetailPage({ params }: JobPageProps) {
     const { id } = await params;
     
-    const job = getJobById(id);
+    const job = await getJobById(id);
 
     if (!job) {
         notFound();
@@ -80,9 +80,11 @@ export default async function JobDetailPage({ params }: JobPageProps) {
                                     </div>
                                 </div>
                             </div>
-                            <Button className="w-full bg-black text-white hover:bg-aam-near-black h-14 rounded-none text-[10px] font-bold uppercase tracking-widest">
-                                Submit Formal Request
-                            </Button>
+                            <Link href={`/jobs/${job.id}/apply`} className="block">
+                                <Button className="w-full bg-black text-white hover:bg-aam-near-black h-14 rounded-none text-[10px] font-bold uppercase tracking-widest">
+                                    Submit Application
+                                </Button>
+                            </Link>
                         </div>
 
                         <div className="p-8 border border-white/10 space-y-6">

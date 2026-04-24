@@ -7,7 +7,7 @@ import { NewsForm } from "@/components/admin/content/NewsForm";
 import { NewsPostInput } from "@/lib/validations";
 import { toast } from "react-hot-toast";
 import { Loader2 } from "lucide-react";
-import { getNewsPostById } from "@/lib/mock-data";
+import { getNewsPostBySlug } from "@/lib/mock-data";
 
 export default function EditNewsPage({ params }: { params: { id: string } }) {
     const [initialData, setInitialData] = useState<any>(null);
@@ -16,17 +16,20 @@ export default function EditNewsPage({ params }: { params: { id: string } }) {
     const router = useRouter();
 
     useEffect(() => {
-        const post = getNewsPostById(params.id);
-        if (!post) {
-            toast.error("FETCH_ERROR: Entry not found in registry.");
-            router.push("/admin/content/news");
-        } else {
-            setInitialData({
-                ...post,
-                is_published: !!post.published_at
-            });
+        async function loadPost() {
+            const post = await getNewsPostBySlug(params.id);
+            if (!post) {
+                toast.error("FETCH_ERROR: Entry not found in registry.");
+                router.push("/admin/content/news");
+            } else {
+                setInitialData({
+                    ...post,
+                    is_published: !!post.published_at
+                });
+            }
+            setLoading(false);
         }
-        setLoading(false);
+        loadPost();
     }, [params.id, router]);
 
     const handleSubmit = async (data: NewsPostInput) => {

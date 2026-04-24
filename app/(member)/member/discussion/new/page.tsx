@@ -53,14 +53,14 @@ export default function NewThreadPage() {
 
       <div className="space-y-4 border-l-8 border-black pl-8">
         <h1 className="text-5xl md:text-7xl font-black uppercase tracking-tighter leading-none">Initiate <br /> Dialogue</h1>
-        <p className="text-lg font-medium text-mono-500 leading-tight">Transmit technical queries or institutional announcements to the peer network.</p>
+        <p className="text-lg font-medium text-neutral-500 leading-tight">Transmit technical queries or institutional announcements to the peer network.</p>
       </div>
 
       <form onSubmit={handleSubmit}>
         <Card className="border-4 border-black rounded-none shadow-none bg-white overflow-hidden">
-          <CardHeader className="p-10 border-b-2 border-black bg-mono-50">
+          <CardHeader className="p-10 border-b-2 border-black bg-neutral-50">
             <CardTitle className="text-xs font-black uppercase tracking-[0.4em]">THREAD CONFIGURATION</CardTitle>
-            <CardDescription className="text-[10px] font-bold text-mono-400 uppercase tracking-widest mt-2">Define technical parameters for the discourse</CardDescription>
+            <CardDescription className="text-[10px] font-bold text-neutral-400 uppercase tracking-widest mt-2">Define technical parameters for the discourse</CardDescription>
           </CardHeader>
           <CardContent className="p-10 space-y-10">
             <div className="space-y-3">
@@ -68,7 +68,7 @@ export default function NewThreadPage() {
               <Input
                 id="title"
                 placeholder="E.G. TECHNICAL AUDIT OF REGULATION 4.2..."
-                className="border-2 border-black rounded-none h-14 px-6 font-bold uppercase tracking-widest text-xs focus-visible:ring-0 placeholder:text-mono-300"
+                className="border-2 border-black rounded-none h-14 px-6 font-bold uppercase tracking-widest text-xs focus-visible:ring-0 placeholder:text-neutral-300"
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
                 required
@@ -95,7 +95,7 @@ export default function NewThreadPage() {
               <Textarea
                 id="body"
                 placeholder="PROVIDE DETAILED CONTEXT FOR PEER REVIEW..."
-                className="min-h-[300px] border-2 border-black rounded-none px-6 py-6 font-bold uppercase tracking-widest text-xs focus-visible:ring-0 placeholder:text-mono-300 resize-none"
+                className="min-h-[300px] border-2 border-black rounded-none px-6 py-6 font-bold uppercase tracking-widest text-xs focus-visible:ring-0 placeholder:text-neutral-300 resize-none"
                 value={body}
                 onChange={(e) => setBody(e.target.value)}
                 required
@@ -109,7 +109,7 @@ export default function NewThreadPage() {
             <Button
               type="submit"
               disabled={loading || !title || !body}
-              className="h-16 px-12 bg-white text-black hover:bg-mono-200 rounded-none font-black uppercase tracking-widest text-[10px] border-2 border-white transition-all group min-w-[240px]"
+              className="h-16 px-12 bg-white text-black hover:bg-neutral-200 rounded-none font-black uppercase tracking-widest text-[10px] border-2 border-white transition-all group min-w-[240px]"
             >
               {loading ? (
                 <Loader2 className="h-5 w-5 animate-spin" />

@@ -17,8 +17,8 @@ import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import { getAllThreads } from "@/lib/mock-data";
 
-export default function ForumPage() {
-  const threads = getAllThreads();
+export default async function ForumPage() {
+  const threads = await getAllThreads();
 
   return (
     <div className="container py-24 space-y-24">
@@ -27,7 +27,7 @@ export default function ForumPage() {
           title="MEMBER DISCOURSE"
           description="Institutional repository for technical dialogue, regulatory audits, and professional peer review."
         />
-        <Button className="h-16 px-10 bg-black text-white hover:bg-mono-800 rounded-none font-black uppercase tracking-widest text-[10px] border-2 border-black transition-all" asChild>
+        <Button className="h-16 px-10 bg-black text-white hover:bg-neutral-800 rounded-none font-black uppercase tracking-widest text-[10px] border-2 border-black transition-all" asChild>
           <Link href="/discussion/new">
             <Plus className="mr-3 h-5 w-5" />
             INITIATE THREAD
@@ -38,10 +38,10 @@ export default function ForumPage() {
       <div className="flex flex-col lg:flex-row gap-16">
         <div className="lg:w-80 space-y-12">
           <div className="space-y-4">
-            <Label className="text-[10px] font-black uppercase tracking-[0.3em] text-mono-400">INDEX SEARCH</Label>
+            <Label className="text-[10px] font-black uppercase tracking-[0.3em] text-neutral-400">INDEX SEARCH</Label>
             <div className="relative">
               <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-black" />
-              <Input placeholder="KEYWORD QUERY..." className="pl-12 border-2 border-black rounded-none h-14 font-black uppercase tracking-widest text-[10px] focus-visible:ring-0 placeholder:text-mono-300" />
+              <Input placeholder="KEYWORD QUERY..." className="pl-12 border-2 border-black rounded-none h-14 font-black uppercase tracking-widest text-[10px] focus-visible:ring-0 placeholder:text-neutral-300" />
             </div>
           </div>
 
@@ -52,7 +52,7 @@ export default function ForumPage() {
                 ALL DISCOURSES
               </button>
               {['GENERAL', 'PROJECTS & WORK', 'REGULATIONS', 'CPE / CPD', 'ANNOUNCEMENTS'].map((cat) => (
-                <button key={cat} className="w-full text-left px-6 py-4 rounded-none border-2 border-transparent hover:border-black font-black uppercase tracking-widest text-[10px] transition-all text-mono-500 hover:text-black">
+                <button key={cat} className="w-full text-left px-6 py-4 rounded-none border-2 border-transparent hover:border-black font-black uppercase tracking-widest text-[10px] transition-all text-neutral-500 hover:text-black">
                   {cat}
                 </button>
               ))}
@@ -76,7 +76,7 @@ export default function ForumPage() {
               {threads?.length || 0} ACTIVE THREADS
             </span>
             <div className="flex items-center gap-4">
-              <span className="text-[10px] font-black uppercase tracking-widest text-mono-400">SEQUENCE:</span>
+              <span className="text-[10px] font-black uppercase tracking-widest text-neutral-400">SEQUENCE:</span>
               <select className="text-[10px] font-black bg-transparent border-none focus:ring-0 cursor-pointer uppercase tracking-widest">
                 <option>RECENT ACTIVITY</option>
                 <option>NEWEST THREADS</option>
@@ -94,7 +94,7 @@ export default function ForumPage() {
                       <Badge className="bg-black text-white group-hover:bg-white group-hover:text-black rounded-none text-[9px] font-black uppercase tracking-widest border-none px-3 py-1 transition-colors">
                         {thread.category}
                       </Badge>
-                      <div className="flex items-center gap-2 text-[9px] font-black uppercase tracking-widest text-mono-400 group-hover:text-white/60">
+                      <div className="flex items-center gap-2 text-[9px] font-black uppercase tracking-widest text-neutral-400 group-hover:text-white/60">
                         <Clock className="h-3 w-3" />
                         <span>LOGGED: {new Date(thread.updated_at || thread.created_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }).toUpperCase()}</span>
                       </div>
@@ -108,7 +108,7 @@ export default function ForumPage() {
 
                     <div className="flex flex-wrap items-center gap-10 pt-6 border-t border-black/10 group-hover:border-white/20">
                       <div className="flex items-center gap-3">
-                        <div className="h-8 w-8 bg-mono-100 border-2 border-black flex items-center justify-center text-[10px] font-black overflow-hidden group-hover:bg-white group-hover:text-black transition-colors">
+                        <div className="h-8 w-8 bg-neutral-100 border-2 border-black flex items-center justify-center text-[10px] font-black overflow-hidden group-hover:bg-white group-hover:text-black transition-colors">
                           M
                         </div>
                         <span className="text-[10px] font-black uppercase tracking-widest">MEMBER</span>
@@ -137,9 +137,9 @@ export default function ForumPage() {
             ))}
 
             {(!threads || threads.length === 0) && (
-              <div className="py-32 text-center border-4 border-black border-dashed rounded-none bg-mono-50 space-y-6">
+              <div className="py-32 text-center border-4 border-black border-dashed rounded-none bg-neutral-50 space-y-6">
                 <MessageSquare className="h-16 w-16 text-black mx-auto opacity-10" />
-                <p className="text-[10px] font-black uppercase tracking-[0.4em] text-mono-400">NO ACTIVE DISCOURSES DETECTED.</p>
+                <p className="text-[10px] font-black uppercase tracking-[0.4em] text-neutral-400">NO ACTIVE DISCOURSES DETECTED.</p>
               </div>
             )}
           </div>

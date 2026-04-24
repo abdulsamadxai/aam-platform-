@@ -2,7 +2,7 @@
 
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { trainingProgrammeSchema, TrainingProgrammeInput } from "@/lib/validations";
+import { trainingSchema, TrainingInput as TrainingProgrammeInput } from "@/lib/validations";
 import {
     Form,
     FormControl,
@@ -30,14 +30,14 @@ export function TrainingForm({
     isLoading = false
 }: TrainingFormProps) {
     const form = useForm<TrainingProgrammeInput>({
-        resolver: zodResolver(trainingProgrammeSchema),
-        defaultValues: initialData || {
+        resolver: zodResolver(trainingSchema),
+        defaultValues: initialData ?? {
             title: "",
             description: "",
-            schedule: "",
+            schedule_text: "",
             registration_url: "",
             is_published: false
-        } as any
+        }
     });
 
     return (
@@ -86,7 +86,7 @@ export function TrainingForm({
                     <div className="space-y-12">
                         <FormField
                             control={form.control}
-                            name="schedule"
+                            name="schedule_text"
                             render={({ field }) => (
                                 <FormItem className="space-y-3">
                                     <FormLabel className="text-[10px] font-black uppercase tracking-widest">Temporal Schedule</FormLabel>
@@ -143,7 +143,7 @@ export function TrainingForm({
                     <Button
                         type="submit"
                         disabled={isLoading}
-                        className="h-20 flex-1 bg-black text-white hover:bg-mono-800 rounded-none font-black uppercase tracking-[0.2em] text-xs border-2 border-black transition-all"
+                        className="h-20 flex-1 bg-black text-white hover:bg-neutral-800 rounded-none font-black uppercase tracking-[0.2em] text-xs border-2 border-black transition-all"
                     >
                         {isLoading ? <Loader2 className="mr-3 h-5 w-5 animate-spin" /> : <Save className="mr-3 h-5 w-5" />}
                         COMMIT MODULE

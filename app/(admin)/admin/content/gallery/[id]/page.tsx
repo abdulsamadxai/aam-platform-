@@ -37,12 +37,15 @@ export default function ManageGalleryAlbum() {
     const router = useRouter();
 
     useEffect(() => {
-        const albumData = getAlbumById(id);
-        if (albumData) {
-            setAlbum(albumData);
-            setPhotos(albumData.photos || []);
+        async function fetchAlbum() {
+            const albumData = await getAlbumById(id);
+            if (albumData) {
+                setAlbum(albumData);
+                setPhotos(albumData.photos || []);
+            }
+            setLoading(false);
         }
-        setLoading(false);
+        fetchAlbum();
     }, [id]);
 
     const addPhoto = async () => {
@@ -84,7 +87,7 @@ export default function ManageGalleryAlbum() {
         return (
             <div className="container py-24 text-center space-y-8">
                 <h1 className="text-4xl font-black uppercase tracking-tighter">ALBUM NOT FOUND</h1>
-                <Button asChild className="bg-black text-white hover:bg-mono-800 rounded-none">
+                <Button asChild className="bg-black text-white hover:bg-neutral-800 rounded-none">
                     <Link href="/admin/content/gallery">RETURN TO GALLERY</Link>
                 </Button>
             </div>
@@ -102,14 +105,14 @@ export default function ManageGalleryAlbum() {
 
             <div className="space-y-4 border-l-8 border-black pl-8">
                 <h1 className="text-5xl md:text-8xl font-black uppercase tracking-tighter leading-none">{album.title}</h1>
-                <p className="text-sm font-black uppercase tracking-[0.4em] text-mono-400">Asset Management Protocol — Album ID: {album.id.slice(0, 8)}</p>
+                <p className="text-sm font-black uppercase tracking-[0.4em] text-neutral-400">Asset Management Protocol — Album ID: {album.id.slice(0, 8)}</p>
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-16">
                 {/* Sidebar: Add Asset */}
                 <div className="space-y-12">
                     <Card className="border-4 border-black rounded-none shadow-none bg-white sticky top-32">
-                        <CardHeader className="border-b-2 border-black bg-mono-50 p-8">
+                        <CardHeader className="border-b-2 border-black bg-neutral-50 p-8">
                             <CardTitle className="text-[10px] font-black uppercase tracking-[0.4em]">INJECT NEW ASSET</CardTitle>
                         </CardHeader>
                         <CardContent className="p-8 space-y-8">
@@ -134,13 +137,13 @@ export default function ManageGalleryAlbum() {
                             <Button
                                 onClick={addPhoto}
                                 disabled={saving}
-                                className="w-full h-14 bg-black text-white hover:bg-mono-800 rounded-none font-black uppercase tracking-widest text-[10px] transition-all"
+                                className="w-full h-14 bg-black text-white hover:bg-neutral-800 rounded-none font-black uppercase tracking-widest text-[10px] transition-all"
                             >
                                 {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <><Plus className="mr-2 h-4 w-4" /> INTEGRATE ASSET</>}
                             </Button>
                         </CardContent>
-                        <CardFooter className="bg-mono-50 p-6 border-t-2 border-black">
-                            <p className="text-[8px] font-black uppercase tracking-[0.2em] text-mono-400 text-center leading-relaxed">
+                        <CardFooter className="bg-neutral-50 p-6 border-t-2 border-black">
+                            <p className="text-[8px] font-black uppercase tracking-[0.2em] text-neutral-400 text-center leading-relaxed">
                                 * MANUAL URL INTEGRATION IS TEMPORARY. STORAGE BUCKET PROTOCOLS UNDER DEVELOPMENT.
                             </p>
                         </CardFooter>
@@ -152,7 +155,7 @@ export default function ManageGalleryAlbum() {
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                         {photos.map((photo) => (
                             <Card key={photo.id} className="border-4 border-black rounded-none shadow-none overflow-hidden group bg-white">
-                                <div className="aspect-square relative bg-mono-100 border-b-4 border-black overflow-hidden">
+                                <div className="aspect-square relative bg-neutral-100 border-b-4 border-black overflow-hidden">
                                     <img
                                         src={photo.storage_url}
                                         alt={photo.caption}
@@ -172,7 +175,7 @@ export default function ManageGalleryAlbum() {
                                 <CardContent className="p-6 space-y-4">
                                     <p className="text-[10px] font-black uppercase tracking-widest line-clamp-2">{photo.caption || "NO CAPTION"}</p>
                                     <div className="flex items-center justify-between pt-4 border-t border-black/5">
-                                        <span className="text-[8px] font-mono text-mono-400">ID: {photo.id.slice(0, 8)}</span>
+                                        <span className="text-[8px] font-mono text-neutral-400">ID: {photo.id.slice(0, 8)}</span>
                                         <a href={photo.storage_url} target="_blank" className="inline-flex items-center gap-2 text-[9px] font-black uppercase tracking-widest hover:text-mcatp-gold transition-colors">
                                             SOURCE <ExternalLink className="h-3 w-3" />
                                         </a>
@@ -182,9 +185,9 @@ export default function ManageGalleryAlbum() {
                         ))}
 
                         {photos.length === 0 && (
-                            <div className="col-span-full py-32 text-center border-4 border-black border-dashed bg-mono-50 space-y-6">
+                            <div className="col-span-full py-32 text-center border-4 border-black border-dashed bg-neutral-50 space-y-6">
                                 <ImageIcon className="h-16 w-16 text-black mx-auto opacity-10" />
-                                <p className="text-[10px] font-black uppercase tracking-[0.4em] text-mono-400">ALBUM IS CURRENTLY DEPLETED.</p>
+                                <p className="text-[10px] font-black uppercase tracking-[0.4em] text-neutral-400">ALBUM IS CURRENTLY DEPLETED.</p>
                             </div>
                         )}
                     </div>

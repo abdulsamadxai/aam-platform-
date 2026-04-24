@@ -23,7 +23,7 @@ export function PublishToggle({
                 <Label className="text-[10px] font-black uppercase tracking-widest">{label}</Label>
                 <p className={cn(
                     "text-xs font-black uppercase tracking-[0.2em]",
-                    isPublished ? "text-green-600" : "text-mono-400"
+                    isPublished ? "text-green-600" : "text-neutral-400"
                 )}>
                     {isPublished ? "LIVE / VISIBLE TO EXTERNAL NODES" : "OFFLINE / INTERNAL PROTOCOL ONLY"}
                 </p>
@@ -31,7 +31,7 @@ export function PublishToggle({
             <Switch
                 checked={isPublished}
                 onCheckedChange={onToggle}
-                className="scale-150 data-[state=checked]:bg-black data-[state=unchecked]:bg-mono-200 border-2 border-black"
+                className="scale-150 data-[state=checked]:bg-black data-[state=unchecked]:bg-neutral-200 border-2 border-black"
             />
         </div>
     );

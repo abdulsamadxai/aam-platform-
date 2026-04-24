@@ -1,9 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { getPublishedNews, getUpcomingEvents, getMemberStats, MOCK_SITE_SETTINGS } from "@/lib/mock-data";
+import { getPublishedNews, getUpcomingEvents, getSiteSettings } from "@/lib/mock-data";
 import { format } from "date-fns";
 import { EditableBlock } from "@/components/admin/EditableBlock";
 import { EditModal } from "@/components/admin/EditModal";
@@ -12,43 +12,117 @@ import { HeroForm } from "@/components/admin/forms/HeroForm";
 import { NewsPostForm } from "@/components/admin/forms/NewsPostForm";
 import { EventForm } from "@/components/admin/forms/EventForm";
 import { useAdmin } from "@/lib/admin-context";
-import { Plus } from "lucide-react";
+import { Plus, Loader2 } from "lucide-react";
 import { toast } from "react-hot-toast";
+import type { NewsPost, Event } from "@/types";
+import Image from "next/image";
+import { createClient } from "@/lib/supabase/client";
+import { fetchPlatformStats } from "@/lib/actions/stats";
 
 export default function HomePage() {
   const { isEditMode } = useAdmin();
   const [heroData, setHeroData] = useState({
-    headline: MOCK_SITE_SETTINGS.hero_headline,
-    subheadline: MOCK_SITE_SETTINGS.hero_subheadline,
-    cta_primary_label: MOCK_SITE_SETTINGS.hero_cta_primary_label,
-    cta_primary_url: MOCK_SITE_SETTINGS.hero_cta_primary_url,
-    cta_secondary_label: MOCK_SITE_SETTINGS.hero_cta_secondary_label,
-    cta_secondary_url: MOCK_SITE_SETTINGS.hero_cta_secondary_url,
+    headline: "Advancing Architectural Excellence in the Maldives",
+    subheadline: "The professional association representing registered architects and town planners across the Maldivian archipelago.",
+    cta_primary_label: "Register as a Member",
+    cta_primary_url: "/register",
+    cta_secondary_label: "Explore News",
+    cta_secondary_url: "/news",
   });
 
-  const [news, setNews] = useState(() => getPublishedNews(3));
-  const [events, setEvents] = useState(() => getUpcomingEvents(2));
-  const stats = getMemberStats();
+  const [news, setNews] = useState<NewsPost[]>([]);
+  const [events, setEvents] = useState<Event[]>([]);
+  const [stats, setStats] = useState({ total: 0, professional: 0 });
+  const [loading, setLoading] = useState(true);
 
   // Modal states
   const [isHeroModalOpen, setIsHeroModalOpen] = useState(false);
-  const [editingNews, setEditingNews] = useState<any>(null);
-  const [deletingNews, setDeletingNews] = useState<any>(null);
-  const [editingEvent, setEditingEvent] = useState<any>(null);
-  const [deletingEvent, setDeletingEvent] = useState<any>(null);
+  const [editingNews, setEditingNews] = useState<NewsPost | null>(null);
+  const [deletingNews, setDeletingNews] = useState<NewsPost | null>(null);
+  const [editingEvent, setEditingEvent] = useState<Event | null>(null);
+  const [deletingEvent, setDeletingEvent] = useState<Event | null>(null);
   const [isAddingNews, setIsAddingNews] = useState(false);
   const [isAddingEvent, setIsAddingEvent] = useState(false);
+
+  useEffect(() => {
+    init();
+  }, []);
+
+  async function init() {
+    setLoading(true);
+    try {
+      const supabase = createClient();
+      
+      const safeFetch = async (fn: () => Promise<any>, fallback: any = []) => {
+        try {
+          return await fn();
+        } catch (e: any) {
+          console.error(`Fetch failed on Home Page:`, e?.message || e);
+          return fallback;
+        }
+      };
+
+      const [newsData, eventsData, settings, statsData] = await Promise.all([
+        safeFetch(() => getPublishedNews(3)),
+        safeFetch(() => getUpcomingEvents(2)),
+        safeFetch(() => getSiteSettings(), {}),
+        safeFetch(() => fetchPlatformStats(), { totalMembers: 0, professionalMembers: 0 })
+      ]);
+
+      setNews(newsData);
+      setEvents(eventsData);
+      setStats({ total: statsData.totalMembers, professional: statsData.professionalMembers });
+      
+      if (settings.hero_headline) {
+        setHeroData({
+          headline: settings.hero_headline,
+          subheadline: settings.hero_subheadline,
+          cta_primary_label: settings.hero_cta_primary_label,
+          cta_primary_url: settings.hero_cta_primary_url,
+          cta_secondary_label: settings.hero_cta_secondary_label,
+          cta_secondary_url: settings.hero_cta_secondary_url,
+        });
+      }
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  const handleHeroSubmit = async (data: any) => {
+    try {
+      const supabase = createClient();
+      const updates = Object.entries(data).map(([key, value]) => ({
+        key,
+        value: String(value),
+        updated_at: new Date().toISOString()
+      }));
+      
+      const { error } = await supabase.from('site_settings').upsert(updates);
+      if (error) throw error;
+      
+      setHeroData(data);
+      setIsHeroModalOpen(false);
+      toast.success("Hero section updated");
+    } catch (error) {
+      toast.error("Failed to update settings");
+    }
+  };
 
   return (
     <main className="min-h-screen bg-black">
       {/* Hero Section */}
-      <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
-        <div
-          className="absolute inset-0 z-0 bg-cover bg-center bg-no-repeat grayscale contrast-125 opacity-40 blur-[2px]"
-          style={{
-            backgroundImage: "url('https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&q=80&w=2070')",
-          }}
-        />
+      <section className="relative min-h-screen flex items-center justify-center overflow-hidden pt-32 pb-20">
+        <div className="absolute inset-0 z-0 grayscale contrast-125 opacity-40 blur-[2px]">
+          <Image
+            src="https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&q=80&w=2070"
+            alt="Hero Background"
+            fill
+            priority
+            className="object-cover"
+          />
+        </div>
         <div className="absolute inset-0 z-10 hero-overlay" />
 
         <div className="container relative z-20 px-6 text-center max-w-5xl">
@@ -56,7 +130,7 @@ export default function HomePage() {
             label="Hero Content"
             onEdit={() => setIsHeroModalOpen(true)}
           >
-            <h1 className="text-[clamp(48px,8vw,72px)] font-bold leading-[1.1] tracking-tight mb-8">
+            <h1 className="text-[clamp(32px,8vw,72px)] font-bold leading-[1.1] tracking-tight mb-8">
               {heroData.headline.split(' ').slice(0, 3).join(' ')} <br /> {heroData.headline.split(' ').slice(3).join(' ')}
             </h1>
             <p className="text-aam-grey text-lg md:text-xl font-light mb-12 max-w-3xl mx-auto leading-relaxed">
@@ -120,87 +194,93 @@ export default function HomePage() {
       {/* Latest News & Upcoming Events */}
       <section className="py-32 bg-black border-t border-white/10 text-white">
         <div className="container mx-auto px-6">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-32">
-            {/* News */}
-            <div className="space-y-12">
-              <div className="flex justify-between items-end">
-                <h2 className="text-3xl font-bold">Latest News</h2>
-                <div className="flex items-center gap-6">
-                  {isEditMode && (
-                    <button
-                      onClick={() => setIsAddingNews(true)}
-                      className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest bg-white text-black px-3 py-1.5 hover:bg-aam-grey transition-all"
+          {loading ? (
+            <div className="flex justify-center py-12">
+              <Loader2 className="w-8 h-8 animate-spin text-white/20" />
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-32">
+              {/* News */}
+              <div className="space-y-12">
+                <div className="flex justify-between items-end">
+                  <h2 className="text-3xl font-bold">Latest News</h2>
+                  <div className="flex items-center gap-6">
+                    {isEditMode && (
+                      <button
+                        onClick={() => setIsAddingNews(true)}
+                        className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest bg-white text-black px-3 py-1.5 hover:bg-aam-grey transition-all"
+                      >
+                        <Plus className="w-3 h-3" /> Add News
+                      </button>
+                    )}
+                    <Link href="/news" className="text-sm font-bold uppercase tracking-widest hover:underline">View All</Link>
+                  </div>
+                </div>
+                <div className="space-y-8">
+                  {news.map((item) => (
+                    <EditableBlock
+                      key={item.id}
+                      label="News Post"
+                      onEdit={() => setEditingNews(item)}
+                      onDelete={() => setDeletingNews(item)}
                     >
-                      <Plus className="w-3 h-3" /> Add News
-                    </button>
-                  )}
-                  <Link href="/news" className="text-sm font-bold uppercase tracking-widest hover:underline">View All</Link>
+                      <div className="group border-b border-white/5 pb-8">
+                        <div className="text-xs text-aam-grey mb-3 uppercase tracking-widest">
+                          {item.published_at ? format(new Date(item.published_at), 'MMMM dd, yyyy') : 'Draft'}
+                        </div>
+                        <h3 className="text-xl font-bold group-hover:text-aam-grey transition-colors mb-4">
+                          {item.title}
+                        </h3>
+                        <p className="text-aam-grey text-sm mb-4 line-clamp-2">
+                          {item.excerpt}
+                        </p>
+                        <Link href={`/news/${item.slug}`} className="text-xs font-bold uppercase tracking-widest underline underline-offset-4">Read More</Link>
+                      </div>
+                    </EditableBlock>
+                  ))}
                 </div>
               </div>
-              <div className="space-y-8">
-                {news.map((item) => (
-                  <EditableBlock
-                    key={item.id}
-                    label="News Post"
-                    onEdit={() => setEditingNews(item)}
-                    onDelete={() => setDeletingNews(item)}
-                  >
-                    <div className="group border-b border-white/5 pb-8">
-                      <div className="text-xs text-aam-grey mb-3 uppercase tracking-widest">
-                        {item.published_at ? format(new Date(item.published_at), 'MMMM dd, yyyy') : 'Draft'}
-                      </div>
-                      <h3 className="text-xl font-bold group-hover:text-aam-grey transition-colors mb-4">
-                        {item.title}
-                      </h3>
-                      <p className="text-aam-grey text-sm mb-4 line-clamp-2">
-                        {item.excerpt}
-                      </p>
-                      <Link href={`/news/${item.slug}`} className="text-xs font-bold uppercase tracking-widest underline underline-offset-4">Read More</Link>
-                    </div>
-                  </EditableBlock>
-                ))}
-              </div>
-            </div>
 
-            {/* Events */}
-            <div className="space-y-12">
-              <div className="flex justify-between items-end">
-                <h2 className="text-3xl font-bold">Upcoming Events</h2>
-                <div className="flex items-center gap-6">
-                  {isEditMode && (
-                    <button
-                      onClick={() => setIsAddingEvent(true)}
-                      className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest bg-white text-black px-3 py-1.5 hover:bg-aam-grey transition-all"
+              {/* Events */}
+              <div className="space-y-12">
+                <div className="flex justify-between items-end">
+                  <h2 className="text-3xl font-bold">Upcoming Events</h2>
+                  <div className="flex items-center gap-6">
+                    {isEditMode && (
+                      <button
+                        onClick={() => setIsAddingEvent(true)}
+                        className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest bg-white text-black px-3 py-1.5 hover:bg-aam-grey transition-all"
+                      >
+                        <Plus className="w-3 h-3" /> Add Event
+                      </button>
+                    )}
+                    <Link href="/events" className="text-sm font-bold uppercase tracking-widest hover:underline">View All</Link>
+                  </div>
+                </div>
+                <div className="space-y-6">
+                  {events.map((event) => (
+                    <EditableBlock
+                      key={event.id}
+                      label="Event"
+                      onEdit={() => setEditingEvent(event)}
+                      onDelete={() => setDeletingEvent(event)}
                     >
-                      <Plus className="w-3 h-3" /> Add Event
-                    </button>
+                      <div className="p-8 bg-black border border-white/5 hover:border-white/20 transition-all">
+                        <div className="text-xs text-aam-grey mb-3 uppercase tracking-widest">
+                          {format(new Date(event.start_at), 'MMMM dd, yyyy')}
+                        </div>
+                        <h3 className="text-xl font-bold mb-2">{event.title}</h3>
+                        <div className="text-sm text-aam-grey">{event.location}</div>
+                      </div>
+                    </EditableBlock>
+                  ))}
+                  {events.length === 0 && (
+                    <p className="text-aam-grey italic">No upcoming events scheduled.</p>
                   )}
-                  <Link href="/events" className="text-sm font-bold uppercase tracking-widest hover:underline">View All</Link>
                 </div>
               </div>
-              <div className="space-y-6">
-                {events.map((event) => (
-                  <EditableBlock
-                    key={event.id}
-                    label="Event"
-                    onEdit={() => setEditingEvent(event)}
-                    onDelete={() => setDeletingEvent(event)}
-                  >
-                    <div className="p-8 bg-black border border-white/5 hover:border-white/20 transition-all">
-                      <div className="text-xs text-aam-grey mb-3 uppercase tracking-widest">
-                        {format(new Date(event.start_at), 'MMMM dd, yyyy')}
-                      </div>
-                      <h3 className="text-xl font-bold mb-2">{event.title}</h3>
-                      <div className="text-sm text-aam-grey">{event.location}</div>
-                    </div>
-                  </EditableBlock>
-                ))}
-                {events.length === 0 && (
-                  <p className="text-aam-grey italic">No upcoming events scheduled.</p>
-                )}
-              </div>
             </div>
-          </div>
+          )}
         </div>
       </section>
 
@@ -226,11 +306,7 @@ export default function HomePage() {
         <HeroForm
           initialData={heroData}
           onCancel={() => setIsHeroModalOpen(false)}
-          onSubmit={(data) => {
-            setHeroData(data);
-            setIsHeroModalOpen(false);
-            toast.success("Hero section updated");
-          }}
+          onSubmit={handleHeroSubmit}
         />
       </EditModal>
 
@@ -240,18 +316,20 @@ export default function HomePage() {
         title={isAddingNews ? "Add News Post" : "Edit News Post"}
       >
         <NewsPostForm
-          initialData={editingNews || {}}
+          initialData={editingNews || undefined}
           onCancel={() => { setEditingNews(null); setIsAddingNews(false); }}
-          onSubmit={(data) => {
+          onSubmit={async (data) => {
+            const { saveNews } = await import('@/lib/mock-data');
             if (isAddingNews) {
-              setNews(prev => [{ ...data, id: Date.now().toString() } as any, ...prev]);
-              setIsAddingNews(false);
+              await saveNews({ ...data, is_published: true });
               toast.success("News post created");
-            } else {
-              setNews(prev => prev.map(item => item.id === editingNews.id ? { ...item, ...data } : item));
-              setEditingNews(null);
+            } else if (editingNews) {
+              await saveNews({ ...editingNews, ...data });
               toast.success("News post updated");
             }
+            setEditingNews(null);
+            setIsAddingNews(false);
+            init();
           }}
         />
       </EditModal>
@@ -260,10 +338,12 @@ export default function HomePage() {
         open={!!deletingNews}
         itemName={deletingNews?.title || ""}
         onClose={() => setDeletingNews(null)}
-        onConfirm={() => {
-          setNews(prev => prev.filter(item => item.id !== deletingNews.id));
+        onConfirm={async () => {
+          const supabase = createClient();
+          await supabase.from('news_posts').update({ deleted_at: new Date().toISOString() }).eq('id', deletingNews?.id);
           setDeletingNews(null);
           toast.success("News post deleted");
+          init();
         }}
       />
 
@@ -273,18 +353,20 @@ export default function HomePage() {
         title={isAddingEvent ? "Add Event" : "Edit Event"}
       >
         <EventForm
-          initialData={editingEvent || {}}
+          initialData={editingEvent || undefined}
           onCancel={() => { setEditingEvent(null); setIsAddingEvent(false); }}
-          onSubmit={(data) => {
+          onSubmit={async (data) => {
+            const supabase = createClient();
             if (isAddingEvent) {
-              setEvents(prev => [{ ...data, id: Date.now().toString() } as any, ...prev]);
-              setIsAddingEvent(false);
+              await supabase.from('events').insert([{ ...data, is_published: true }]);
               toast.success("Event created");
-            } else {
-              setEvents(prev => prev.map(item => item.id === editingEvent.id ? { ...item, ...data } : item));
-              setEditingEvent(null);
+            } else if (editingEvent) {
+              await supabase.from('events').update(data).eq('id', editingEvent.id);
               toast.success("Event updated");
             }
+            setEditingEvent(null);
+            setIsAddingEvent(false);
+            init();
           }}
         />
       </EditModal>
@@ -293,10 +375,12 @@ export default function HomePage() {
         open={!!deletingEvent}
         itemName={deletingEvent?.title || ""}
         onClose={() => setDeletingEvent(null)}
-        onConfirm={() => {
-          setEvents(prev => prev.filter(item => item.id !== deletingEvent.id));
+        onConfirm={async () => {
+          const supabase = createClient();
+          await supabase.from('events').update({ deleted_at: new Date().toISOString() }).eq('id', deletingEvent?.id);
           setDeletingEvent(null);
           toast.success("Event deleted");
+          init();
         }}
       />
     </main>

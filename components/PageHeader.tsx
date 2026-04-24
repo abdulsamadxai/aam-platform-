@@ -3,6 +3,7 @@ import { cn } from "@/lib/utils";
 interface PageHeaderProps {
     title: string;
     subtitle?: string;
+    description?: string;
     image?: string;
     className?: string;
 }
@@ -10,9 +11,11 @@ interface PageHeaderProps {
 export function PageHeader({
     title,
     subtitle,
+    description,
     image = "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&q=80&w=2070",
     className
 }: PageHeaderProps) {
+    const subtitleText = subtitle ?? description;
     return (
         <section className={cn("relative min-h-[50vh] flex flex-col items-center justify-center pt-32 pb-20 overflow-hidden bg-black", className)}>
             {/* Architecture Background - HD Grayscale */}
@@ -31,9 +34,9 @@ export function PageHeader({
                     <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold tracking-tighter uppercase text-white">
                         {title}
                     </h1>
-                    {subtitle && (
+                    {subtitleText && (
                         <p className="text-white/40 text-base md:text-lg font-light max-w-2xl mx-auto tracking-wide leading-relaxed">
-                            {subtitle}
+                            {subtitleText}
                         </p>
                     )}
                 </div>

@@ -43,7 +43,7 @@ export function Navbar() {
       className={cn(
         "fixed left-0 right-0 z-50 transition-all duration-300",
         isAdmin ? "top-[44px]" : "top-0",
-        scrolled ? "bg-black/95 backdrop-blur-md py-4 border-b border-white/10" : "bg-black/80 py-6"
+        scrolled ? "bg-black/95 backdrop-blur-md py-4 border-b border-white/10" : "bg-black/95 py-6"
       )}
     >
       <div className="container mx-auto px-6 flex items-center justify-between">
@@ -53,23 +53,29 @@ export function Navbar() {
 
         {/* Desktop Navigation */}
         <nav className="hidden xl:flex items-center gap-6 2xl:gap-8">
-          {navLinks.map((link) => (
-            <Link
-              key={link.name}
-              href={link.href}
-              className={cn(
-                "text-[11px] font-bold uppercase tracking-widest transition-all duration-300 relative py-1 whitespace-nowrap",
-                pathname === link.href
-                  ? "text-white"
-                  : "text-aam-grey hover:text-white"
-              )}
-            >
-              {link.name}
-              {pathname === link.href && (
-                <span className="absolute bottom-0 left-0 w-full h-0.5 bg-white" />
-              )}
-            </Link>
-          ))}
+          {navLinks.map((item) => {
+            const isActive = item.href === "/" 
+              ? pathname === "/" 
+              : pathname.startsWith(item.href);
+
+            return (
+              <Link
+                key={item.href}
+                href={item.href}
+                className={cn(
+                  "text-[11px] font-bold uppercase tracking-widest transition-all duration-300 relative py-1 whitespace-nowrap",
+                  isActive
+                    ? "text-white"
+                    : "text-aam-grey hover:text-white"
+                )}
+              >
+                {item.name}
+                {isActive && (
+                  <span className="absolute bottom-0 left-0 w-full h-0.5 bg-white" />
+                )}
+              </Link>
+            );
+          })}
         </nav>
 
         {/* Login Button */}
@@ -87,6 +93,8 @@ export function Navbar() {
         <button
           className="xl:hidden p-2 text-white"
           onClick={() => setIsOpen(!isOpen)}
+          aria-label={isOpen ? "Close menu" : "Open menu"}
+          aria-expanded={isOpen}
         >
           {isOpen ? <X className="h-8 w-8" /> : <Menu className="h-8 w-8" />}
         </button>
@@ -95,18 +103,19 @@ export function Navbar() {
       {/* Mobile Menu */}
       <div
         className={cn(
-          "fixed inset-0 top-[72px] bg-black z-40 transition-transform duration-500 xl:hidden",
+          "fixed inset-x-0 bottom-0 bg-black z-40 transition-transform duration-500 xl:hidden overflow-y-auto",
+          isAdmin ? "top-[calc(44px+64px)]" : scrolled ? "top-[64px]" : "top-[88px]",
           isOpen ? "translate-x-0" : "translate-x-full"
         )}
       >
-        <nav className="flex flex-col items-center justify-center h-full gap-8">
+        <nav className="flex flex-col items-center py-12 gap-8 min-h-full">
           {navLinks.map((link) => (
             <Link
               key={link.name}
               href={link.href}
               className={cn(
                 "text-2xl font-bold tracking-widest uppercase",
-                pathname === link.href ? "text-white" : "text-aam-grey"
+                pathname === link.href || (link.href !== "/" && pathname.startsWith(link.href)) ? "text-white" : "text-aam-grey"
               )}
               onClick={() => setIsOpen(false)}
             >
