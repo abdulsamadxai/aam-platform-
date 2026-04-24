@@ -5,6 +5,7 @@ import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { User, Clock, MessageSquare, Send } from "lucide-react";
+import Image from "next/image";
 
 interface ThreadViewProps {
     thread: any;
@@ -78,7 +79,7 @@ export function ThreadView({ thread, replies: initialReplies, user }: ThreadView
                 <div className="pt-8 border-t border-white/5 flex items-center gap-4">
                     <div className="w-10 h-10 bg-black border border-white/10 flex items-center justify-center">
                         {thread.author?.avatar_url ? (
-                            <img src={thread.author.avatar_url} className="w-full h-full object-cover" alt="" />
+                            <Image src={thread.author.avatar_url} width={40} height={40} className="w-full h-full object-cover" alt="" />
                         ) : (
                             <User className="w-5 h-5 text-aam-dark-grey" />
                         )}
@@ -104,7 +105,7 @@ export function ThreadView({ thread, replies: initialReplies, user }: ThreadView
                                 <div className="flex items-center gap-3">
                                     <div className="w-6 h-6 bg-aam-near-black border border-white/10 flex items-center justify-center text-[10px] font-bold overflow-hidden">
                                         {reply.author?.avatar_url ? (
-                                            <img src={reply.author.avatar_url} className="w-full h-full object-cover" alt="" />
+                                            <Image src={reply.author.avatar_url} width={24} height={24} className="w-full h-full object-cover" alt="" />
                                         ) : (
                                             <User className="w-3.5 h-3.5" />
                                         )}

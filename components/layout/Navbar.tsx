@@ -28,11 +28,15 @@ export function Navbar() {
   const pathname = usePathname();
   const { isAdmin } = useAdmin();
 
+  const isDashboard = pathname?.startsWith('/member') || pathname?.startsWith('/admin');
+
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 20);
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
+
+  if (isDashboard) return null;
 
   return (
     <header

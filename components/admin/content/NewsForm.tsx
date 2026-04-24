@@ -1,6 +1,6 @@
 "use client";
 
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { newsPostSchema, NewsPostInput } from "@/lib/validations";
 import {
@@ -48,7 +48,7 @@ export function NewsForm({
         } as any
     });
 
-    const title = form.watch("title");
+    const title = useWatch({ control: form.control, name: "title" });
 
     return (
         <Form {...form}>

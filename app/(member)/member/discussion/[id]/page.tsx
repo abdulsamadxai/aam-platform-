@@ -3,7 +3,7 @@ import { ThreadView } from "@/components/discussion/ThreadView";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
-import { getAllThreads } from "@/lib/mock-data";
+import { getAllThreads, getAllReplies } from "@/lib/mock-data";
 
 export default async function ThreadPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -17,16 +17,18 @@ export default async function ThreadPage({ params }: { params: Promise<{ id: str
     notFound();
   }
 
-  const replies: any[] = [];
+  const replies = getAllReplies().filter(r => r.thread_id === id);
 
   return (
     <div className="container py-12 max-w-5xl space-y-8">
-      <Button variant="ghost" className="text-muted-foreground hover:text-aam-teal-600 p-0" asChild>
-        <Link href="/discussion">
-          <ArrowLeft className="mr-2 h-4 w-4" />
-          Back to Discussions
-        </Link>
-      </Button>
+      <div className="border-b-2 border-white/20 pb-8">
+        <Button variant="ghost" className="text-white font-black uppercase tracking-widest text-[10px] p-0 hover:bg-transparent hover:text-white/80 group" asChild>
+          <Link href="/member/discussion">
+            <ArrowLeft className="mr-3 h-5 w-5 group-hover:-translate-x-2 transition-transform" />
+            RETURN TO DISCOURSES
+          </Link>
+        </Button>
+      </div>
 
       <ThreadView
         initialThread={thread as any}

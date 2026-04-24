@@ -2,7 +2,7 @@ import {
     NewsPost, Event, Member, PublicMember, JobListing, GalleryAlbum,
     TrainingProgramme, RegisteredFirm, CommitteeMember, AGMRecord,
     Competition, ContactSubmission, RegistrationApplication, Broadcast,
-    ForumThread, SitePage
+    ForumThread, ForumReply, SitePage, JobApplication, TrainingRegistration
 } from '@/types'
 
 // --- NEWS POSTS ---
@@ -122,8 +122,8 @@ export const MOCK_MEMBERS: Member[] = [
         id: `m-${i + 6}`,
         aam_id: `AAM-${(i + 6).toString().padStart(3, '0')}`,
         full_name: `${['Abdulla', 'Ali', 'Hassan', 'Ismail', 'Moosa'][i % 5]} ${['Latheef', 'Nasir', 'Shafeeq', 'Waheed', 'Zaki'][Math.floor(i / 5)]}`,
-        category: (i % 3 === 0 ? 'professional' : i % 3 === 1 ? 'general' : 'associate') as any,
-        status: 'active' as any,
+        category: (i % 3 === 0 ? 'professional' : i % 3 === 1 ? 'general' : 'associate') as 'professional' | 'general' | 'associate',
+        status: 'active' as 'active' | 'suspended',
         email: `member${i + 6}@example.mv`,
         is_voting_eligible: i % 3 !== 2,
         unsubscribed: false,
@@ -271,9 +271,12 @@ export const MOCK_COMMITTEE_MEMBERS: CommitteeMember[] = [
 
 // --- AGM RECORDS ---
 export const MOCK_AGM_RECORDS: AGMRecord[] = [
-    { id: 'agm1', year: 2025, date_held: '2025-02-20', resolutions: '1. New membership fees approved. 2. CPD framework update sanctioned.' },
-    { id: 'agm2', year: 2024, date_held: '2024-02-15', resolutions: '1. Election of the new executive committee. 2. Budget approval for regional outreach.' },
-    { id: 'agm3', year: 2023, date_held: '2023-03-10', resolutions: '1. Amendments to the AAM Constitution.' },
+    { id: 'agm1', year: 2025, date_held: '2025-01-11', title: '31ST ANNUAL GENERAL MEETING', resolutions: '5 statutory resolutions adopted regarding professional accreditation protocols and CPD requirements for the upcoming term.', minutes_file_url: '' },
+    { id: 'agm2', year: 2024, date_held: '2024-01-14', title: '30TH ANNUAL GENERAL MEETING', resolutions: '3 constitutional amendments passed regarding the election process for the external oversight board.', minutes_file_url: '' },
+    { id: 'agm3', year: 2023, date_held: '2023-01-08', title: '29TH ANNUAL GENERAL MEETING', resolutions: '4 resolutions passed regarding the formal establishment of the architectural standards registry.', minutes_file_url: '' },
+    { id: 'agm4', year: 2022, date_held: '2022-01-15', title: '28TH ANNUAL GENERAL MEETING', resolutions: '2 resolutions adopted on revision of membership categories and introduction of the student member tier.', minutes_file_url: '' },
+    { id: 'agm5', year: 2021, date_held: '2021-01-10', title: '27TH ANNUAL GENERAL MEETING', resolutions: 'Emergency resolutions adopted in response to the COVID-19 pandemic, allowing virtual meetings and suspended CPD requirements for 2021.', minutes_file_url: '' },
+    { id: 'agm6', year: 2020, date_held: '2020-01-12', title: '26TH ANNUAL GENERAL MEETING', resolutions: '5 resolutions passed including the approval of the AAM Strategic Plan 2020–2025.', minutes_file_url: '' },
 ]
 
 // --- COMPETITIONS ---
@@ -355,6 +358,15 @@ export const MOCK_FORUM_THREADS: ForumThread[] = Array.from({ length: 15 }).map(
     updated_at: new Date(Date.now() - i * 3600000).toISOString(),
 }))
 
+export const MOCK_FORUM_REPLIES: ForumReply[] = Array.from({ length: 40 }).map((_, i) => ({
+    id: `rep-${i}`,
+    thread_id: `th-${i % 15}`,
+    body: `This is a mock reply #${i + 1} with some technical feedback on the discussion.`,
+    author_id: MOCK_MEMBERS[i % MOCK_MEMBERS.length].id,
+    is_flagged: i % 10 === 0,
+    created_at: new Date(Date.now() - i * 1800000).toISOString(),
+}))
+
 // --- SITE SETTINGS ---
 export const MOCK_SITE_SETTINGS = {
     hero_headline: 'The Voice of Architecture in the Maldives',
@@ -397,7 +409,8 @@ export const MOCK_SITE_PAGES: Record<string, SitePage> = {
 // --- HELPER FUNCTIONS ---
 
 export function getPublishedNews(limit?: number): NewsPost[] {
-    return MOCK_NEWS_POSTS
+    const news = getAllNews();
+    return news
         .filter(p => !p.deleted_at && p.published_at && new Date(p.published_at) <= new Date())
         .sort((a, b) => new Date(b.published_at!).getTime() - new Date(a.published_at!).getTime())
         .slice(0, limit)
@@ -410,12 +423,34 @@ export function getUpcomingEvents(limit?: number): Event[] {
         .slice(0, limit)
 }
 
+// Admin helpers
+export const getAllNews = (): NewsPost[] => {
+    if (typeof window === 'undefined') return [...MOCK_NEWS_POSTS];
+    const local = localStorage.getItem('aam_news_data');
+    if (local) {
+        try {
+            return JSON.parse(local);
+        } catch (e) {
+            return [...MOCK_NEWS_POSTS];
+        }
+    }
+    // Initialize localStorage with mock data if not present
+    localStorage.setItem('aam_news_data', JSON.stringify(MOCK_NEWS_POSTS));
+    return [...MOCK_NEWS_POSTS];
+}
+
+export const saveNews = (news: NewsPost[]) => {
+    if (typeof window !== 'undefined') {
+        localStorage.setItem('aam_news_data', JSON.stringify(news));
+    }
+}
+
 export function getNewsPostBySlug(slug: string): NewsPost | undefined {
-    return MOCK_NEWS_POSTS.find(p => p.slug === slug)
+    return getAllNews().find(p => p.slug === slug)
 }
 
 export function getNewsPostById(id: string): NewsPost | undefined {
-    return MOCK_NEWS_POSTS.find(p => p.id === id)
+    return getAllNews().find(p => p.id === id)
 }
 
 export function getEventById(id: string): Event | undefined {
@@ -435,7 +470,7 @@ export function getCompetitionById(id: string): Competition | undefined {
 }
 
 export function getAlbumById(id: string): GalleryAlbum | undefined {
-    return MOCK_GALLERY_ALBUMS.find(g => g.id === id)
+    return getAllGalleryAlbums().find(g => g.id === id)
 }
 
 export function getActiveMembers(): PublicMember[] {
@@ -449,8 +484,27 @@ export function getActiveJobs(): JobListing[] {
 }
 
 export function getAllGalleryAlbums(): GalleryAlbum[] {
-    return MOCK_GALLERY_ALBUMS
-        .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
+    if (typeof window === 'undefined') {
+        return [...MOCK_GALLERY_ALBUMS].sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+    }
+    
+    const local = localStorage.getItem('aam_gallery_data');
+    if (local) {
+        try {
+            return JSON.parse(local).sort((a: GalleryAlbum, b: GalleryAlbum) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+        } catch (e: unknown) {
+            return [...MOCK_GALLERY_ALBUMS].sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+        }
+    }
+    
+    localStorage.setItem('aam_gallery_data', JSON.stringify(MOCK_GALLERY_ALBUMS));
+    return [...MOCK_GALLERY_ALBUMS].sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+}
+
+export function saveGalleryAlbums(albums: GalleryAlbum[]) {
+    if (typeof window !== 'undefined') {
+        localStorage.setItem('aam_gallery_data', JSON.stringify(albums));
+    }
 }
 
 export function getMemberStats() {
@@ -465,8 +519,6 @@ export function getMemberStats() {
     }
 }
 
-// Admin helpers
-export const getAllNews = () => [...MOCK_NEWS_POSTS]
 export const getAllEvents = () => [...MOCK_EVENTS]
 export const getAllMembers = () => [...MOCK_MEMBERS]
 export const getAllJobs = () => [...MOCK_JOBS]
@@ -474,9 +526,158 @@ export const getAllAlbums = () => [...MOCK_GALLERY_ALBUMS]
 export const getAllTraining = () => [...MOCK_TRAINING_PROGRAMMES]
 export const getAllFirms = () => [...MOCK_FIRMS]
 export const getAllCommittee = () => [...MOCK_COMMITTEE_MEMBERS]
-export const getAllAGMRecords = () => [...MOCK_AGM_RECORDS]
+// --- AGM RECORDS (localStorage-backed) ---
+const AGM_KEY = 'aam_agm_records';
+
+export const getAllAGMRecords = (): AGMRecord[] => {
+    if (typeof window === 'undefined') return [...MOCK_AGM_RECORDS];
+    const local = localStorage.getItem(AGM_KEY);
+    if (local) {
+        try { return JSON.parse(local); } catch { return [...MOCK_AGM_RECORDS]; }
+    }
+    localStorage.setItem(AGM_KEY, JSON.stringify(MOCK_AGM_RECORDS));
+    return [...MOCK_AGM_RECORDS];
+};
+
+export const saveAGMRecords = (records: AGMRecord[]): void => {
+    if (typeof window !== 'undefined') {
+        localStorage.setItem(AGM_KEY, JSON.stringify(records));
+    }
+};
 export const getAllCompetitions = () => [...MOCK_COMPETITIONS]
 export const getAllSubmissions = () => [...MOCK_CONTACT_SUBMISSIONS]
 export const getAllApplications = () => [...MOCK_APPLICATIONS]
 export const getAllBroadcasts = () => [...MOCK_BROADCASTS]
-export const getAllThreads = () => [...MOCK_FORUM_THREADS]
+// --- FORUM (localStorage-backed) ---
+const FORUM_THREADS_KEY = 'aam_forum_threads';
+const FORUM_REPLIES_KEY = 'aam_forum_replies';
+
+export const getAllThreads = (): ForumThread[] => {
+    if (typeof window === 'undefined') return [...MOCK_FORUM_THREADS];
+    const local = localStorage.getItem(FORUM_THREADS_KEY);
+    if (local) {
+        try { return JSON.parse(local); } catch { return [...MOCK_FORUM_THREADS]; }
+    }
+    localStorage.setItem(FORUM_THREADS_KEY, JSON.stringify(MOCK_FORUM_THREADS));
+    return [...MOCK_FORUM_THREADS];
+};
+
+export const saveForumThread = (thread: ForumThread): void => {
+    if (typeof window === 'undefined') return;
+    const existing = getAllThreads();
+    const updated = [thread, ...existing];
+    localStorage.setItem(FORUM_THREADS_KEY, JSON.stringify(updated));
+};
+
+export const updateForumThread = (id: string, updates: Partial<ForumThread>): void => {
+    if (typeof window === 'undefined') return;
+    const existing = getAllThreads();
+    const updated = existing.map(t => t.id === id ? { ...t, ...updates } : t);
+    localStorage.setItem(FORUM_THREADS_KEY, JSON.stringify(updated));
+};
+
+export const deleteForumThread = (id: string): void => {
+    if (typeof window === 'undefined') return;
+    const existing = getAllThreads();
+    const updated = existing.filter(t => t.id !== id);
+    localStorage.setItem(FORUM_THREADS_KEY, JSON.stringify(updated));
+};
+
+export const getAllReplies = (): ForumReply[] => {
+    if (typeof window === 'undefined') return [...MOCK_FORUM_REPLIES];
+    const local = localStorage.getItem(FORUM_REPLIES_KEY);
+    if (local) {
+        try { return JSON.parse(local); } catch { return [...MOCK_FORUM_REPLIES]; }
+    }
+    localStorage.setItem(FORUM_REPLIES_KEY, JSON.stringify(MOCK_FORUM_REPLIES));
+    return [...MOCK_FORUM_REPLIES];
+};
+
+export const saveForumReply = (reply: ForumReply): void => {
+    if (typeof window === 'undefined') return;
+    const existing = getAllReplies();
+    const updated = [reply, ...existing];
+    localStorage.setItem(FORUM_REPLIES_KEY, JSON.stringify(updated));
+    
+    // Increment reply count in thread
+    const threadToUpdate = getAllThreads().find(t => t.id === reply.thread_id);
+    if (threadToUpdate) {
+        updateForumThread(threadToUpdate.id, { reply_count: (threadToUpdate.reply_count || 0) + 1 });
+    }
+};
+
+export const updateForumReply = (id: string, updates: Partial<ForumReply>): void => {
+    if (typeof window === 'undefined') return;
+    const existing = getAllReplies();
+    const updated = existing.map(r => r.id === id ? { ...r, ...updates } : r);
+    localStorage.setItem(FORUM_REPLIES_KEY, JSON.stringify(updated));
+};
+
+export const deleteForumReply = (id: string): void => {
+    if (typeof window === 'undefined') return;
+    const existing = getAllReplies();
+    
+    const replyToDelete = existing.find(r => r.id === id);
+    if (replyToDelete) {
+        // Decrement reply count in thread
+        const threadToUpdate = getAllThreads().find(t => t.id === replyToDelete.thread_id);
+        if (threadToUpdate && threadToUpdate.reply_count && threadToUpdate.reply_count > 0) {
+            updateForumThread(threadToUpdate.id, { reply_count: threadToUpdate.reply_count - 1 });
+        }
+    }
+    
+    const updated = existing.filter(r => r.id !== id);
+    localStorage.setItem(FORUM_REPLIES_KEY, JSON.stringify(updated));
+};
+
+// --- JOB APPLICATIONS (localStorage-backed) ---
+const JOB_APPS_KEY = 'aam_job_applications';
+
+export const getAllJobApplications = (): JobApplication[] => {
+    if (typeof window === 'undefined') return [];
+    const local = localStorage.getItem(JOB_APPS_KEY);
+    if (local) {
+        try { return JSON.parse(local); } catch { return []; }
+    }
+    return [];
+};
+
+export const saveJobApplication = (app: JobApplication): void => {
+    if (typeof window === 'undefined') return;
+    const existing = getAllJobApplications();
+    const updated = [app, ...existing];
+    localStorage.setItem(JOB_APPS_KEY, JSON.stringify(updated));
+};
+
+export const updateJobApplicationStatus = (id: string, status: JobApplication['status']): void => {
+    if (typeof window === 'undefined') return;
+    const existing = getAllJobApplications();
+    const updated = existing.map(a => a.id === id ? { ...a, status } : a);
+    localStorage.setItem(JOB_APPS_KEY, JSON.stringify(updated));
+};
+
+// --- TRAINING REGISTRATIONS (localStorage-backed) ---
+const TRAINING_REGS_KEY = 'aam_training_registrations';
+
+export const getAllTrainingRegistrations = (): TrainingRegistration[] => {
+    if (typeof window === 'undefined') return [];
+    const local = localStorage.getItem(TRAINING_REGS_KEY);
+    if (local) {
+        try { return JSON.parse(local); } catch { return []; }
+    }
+    return [];
+};
+
+export const saveTrainingRegistration = (reg: TrainingRegistration): void => {
+    if (typeof window === 'undefined') return;
+    const existing = getAllTrainingRegistrations();
+    const updated = [reg, ...existing];
+    localStorage.setItem(TRAINING_REGS_KEY, JSON.stringify(updated));
+};
+
+export const updateTrainingRegistrationStatus = (id: string, status: TrainingRegistration['status']): void => {
+    if (typeof window === 'undefined') return;
+    const existing = getAllTrainingRegistrations();
+    const updated = existing.map(r => r.id === id ? { ...r, status } : r);
+    localStorage.setItem(TRAINING_REGS_KEY, JSON.stringify(updated));
+};

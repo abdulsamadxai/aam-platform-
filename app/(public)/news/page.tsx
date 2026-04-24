@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { PageHeader } from "@/components/PageHeader";
 import Link from "next/link";
-import { getAllNews } from "@/lib/mock-data";
+import { getAllNews, saveNews } from "@/lib/mock-data";
 import { format } from "date-fns";
 import { EditableBlock } from "@/components/admin/EditableBlock";
 import { EditModal } from "@/components/admin/EditModal";
@@ -51,29 +51,40 @@ export default function NewsPage() {
                 onEdit={() => setEditingNews(post)}
                 onDelete={() => setDeletingNews(post)}
               >
-                <div className="bg-aam-near-black border border-white/5 p-10 h-full flex flex-col justify-between hover:border-white transition-all">
-                  <div className="space-y-6">
-                    <div className="flex justify-between items-center">
-                      <span className="text-[10px] uppercase font-bold tracking-[0.2em] text-aam-grey">
-                        {post.category}
-                      </span>
-                      <span className="text-[10px] uppercase font-medium text-aam-dark-grey">
-                        {post.published_at ? format(new Date(post.published_at), 'MMMM dd, yyyy') : 'Draft'}
-                      </span>
+                <div className="bg-aam-near-black border border-white/5 h-full flex flex-col hover:border-white transition-all overflow-hidden group">
+                  {post.cover_image_url && (
+                    <div className="aspect-video w-full overflow-hidden border-b border-white/5">
+                      <img 
+                        src={post.cover_image_url} 
+                        alt={post.title} 
+                        className="w-full h-full object-cover grayscale group-hover:grayscale-0 group-hover:scale-105 transition-all duration-700 opacity-60 group-hover:opacity-100" 
+                      />
                     </div>
-                    <h3 className="text-xl font-bold leading-tight uppercase tracking-tight">
-                      {post.title}
-                    </h3>
-                    <p className="text-sm text-aam-grey leading-relaxed line-clamp-3">
-                      {post.excerpt}
-                    </p>
+                  )}
+                  <div className="p-10 flex flex-col justify-between flex-grow">
+                    <div className="space-y-6">
+                      <div className="flex justify-between items-center">
+                        <span className="text-[10px] uppercase font-bold tracking-[0.2em] text-aam-grey">
+                          {post.category}
+                        </span>
+                        <span className="text-[10px] uppercase font-medium text-aam-dark-grey">
+                          {post.published_at ? format(new Date(post.published_at), 'MMMM dd, yyyy') : 'Draft'}
+                        </span>
+                      </div>
+                      <h3 className="text-xl font-bold leading-tight uppercase tracking-tight group-hover:text-white transition-colors">
+                        {post.title}
+                      </h3>
+                      <p className="text-sm text-aam-grey leading-relaxed line-clamp-3">
+                        {post.excerpt}
+                      </p>
+                    </div>
+                    <Link
+                      href={`/news/${post.slug}`}
+                      className="mt-8 text-xs font-bold uppercase tracking-widest underline underline-offset-8 hover:text-aam-grey transition-all inline-block"
+                    >
+                      Read More →
+                    </Link>
                   </div>
-                  <Link
-                    href={`/news/${post.slug}`}
-                    className="mt-8 text-xs font-bold uppercase tracking-widest underline underline-offset-8 hover:text-aam-grey transition-all"
-                  >
-                    Read More →
-                  </Link>
                 </div>
               </EditableBlock>
             ))}
@@ -92,11 +103,21 @@ export default function NewsPage() {
           onCancel={() => { setEditingNews(null); setIsAddingNews(false); }}
           onSubmit={(data) => {
             if (isAddingNews) {
-              setNews(prev => [{ ...data, id: Date.now().toString() } as any, ...prev]);
+              const newPost = { 
+                ...data, 
+                id: Date.now().toString(),
+                created_at: new Date().toISOString(),
+                updated_at: new Date().toISOString()
+              };
+              const updatedNews = [newPost as any, ...news];
+              setNews(updatedNews);
+              saveNews(updatedNews);
               setIsAddingNews(false);
               toast.success("News post created");
             } else {
-              setNews(prev => prev.map(item => item.id === editingNews.id ? { ...item, ...data } : item));
+              const updatedNews = news.map(item => item.id === editingNews.id ? { ...item, ...data, updated_at: new Date().toISOString() } : item);
+              setNews(updatedNews);
+              saveNews(updatedNews);
               setEditingNews(null);
               toast.success("News post updated");
             }
@@ -109,7 +130,9 @@ export default function NewsPage() {
         itemName={deletingNews?.title || ""}
         onClose={() => setDeletingNews(null)}
         onConfirm={() => {
-          setNews(prev => prev.filter(item => item.id !== deletingNews.id));
+          const updatedNews = news.filter(item => item.id !== deletingNews.id);
+          setNews(updatedNews);
+          saveNews(updatedNews);
           setDeletingNews(null);
           toast.success("News post deleted");
         }}

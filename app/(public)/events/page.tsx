@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { PageHeader } from "@/components/PageHeader";
 import { Button } from "@/components/ui/button";
 import { getUpcomingEvents, getAllEvents } from "@/lib/mock-data";
@@ -71,7 +72,9 @@ export default function EventsPage() {
                                         </p>
                                     </div>
                                     <div className="flex items-center">
-                                        <Button className="btn-primary w-full md:w-auto">Details</Button>
+                                        <Link href={`/events/${event.id}`}>
+                                            <Button className="btn-primary w-full md:w-auto">Details</Button>
+                                        </Link>
                                     </div>
                                 </div>
                             </EditableBlock>
@@ -95,11 +98,13 @@ export default function EventsPage() {
                                 onEdit={() => setEditingEvent(event)}
                                 onDelete={() => setDeletingEvent(event)}
                             >
-                                <div className="p-8 border border-white/5 bg-black opacity-60 grayscale hover:opacity-100 hover:grayscale-0 transition-all text-white">
-                                    <div className="text-[10px] text-aam-dark-grey font-bold uppercase tracking-widest mb-3">Past Event</div>
-                                    <h4 className="text-lg font-bold mb-2 uppercase tracking-wide">{event.title}</h4>
-                                    <div className="text-xs text-aam-grey mb-4">{format(new Date(event.start_at), 'MMM dd, yyyy')} | {event.location}</div>
-                                </div>
+                                <Link href={`/events/${event.id}`}>
+                                    <div className="p-8 border border-white/5 bg-black opacity-60 grayscale hover:opacity-100 hover:grayscale-0 transition-all text-white h-full">
+                                        <div className="text-[10px] text-aam-dark-grey font-bold uppercase tracking-widest mb-3">Past Event</div>
+                                        <h4 className="text-lg font-bold mb-2 uppercase tracking-wide">{event.title}</h4>
+                                        <div className="text-xs text-aam-grey mb-4">{format(new Date(event.start_at), 'MMM dd, yyyy')} | {event.location}</div>
+                                    </div>
+                                </Link>
                             </EditableBlock>
                         ))}
                     </div>

@@ -3,7 +3,7 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft, Clock, User } from "lucide-react";
-import { getNewsPostBySlug } from "@/lib/mock-data";
+import { getNewsPostBySlug, getAllNews, saveNews } from "@/lib/mock-data";
 import { format } from "date-fns";
 import { useState, useEffect } from "react";
 import { EditableBlock } from "@/components/admin/EditableBlock";
@@ -13,10 +13,12 @@ import { NewsPostForm } from "@/components/admin/forms/NewsPostForm";
 import { useAdmin } from "@/lib/admin-context";
 import { toast } from "react-hot-toast";
 import { NewsPost } from "@/types";
+import { use } from "react";
 
-export default function NewsArticlePage({ params }: { params: { slug: string } }) {
+export default function NewsArticlePage({ params }: { params: Promise<{ slug: string }> }) {
     const { isEditMode } = useAdmin();
-    const { slug } = params;
+    const resolvedParams = use(params);
+    const slug = resolvedParams.slug;
     const [post, setPost] = useState<NewsPost | null>(null);
     const [isLoading, setIsLoading] = useState(true);
 
@@ -77,6 +79,16 @@ export default function NewsArticlePage({ params }: { params: { slug: string } }
                             </div>
                         </header>
 
+                        {post.cover_image_url && (
+                            <div className="aspect-[21/9] bg-aam-near-black border border-white/10 overflow-hidden mb-16">
+                                <img 
+                                    src={post.cover_image_url} 
+                                    alt={post.title} 
+                                    className="w-full h-full object-cover grayscale hover:grayscale-0 transition-all duration-700 opacity-70 hover:opacity-100" 
+                                />
+                            </div>
+                        )}
+
                         <div className="prose prose-invert prose-sm md:prose-base max-w-none prose-p:text-aam-grey prose-p:leading-relaxed prose-headings:text-white prose-headings:uppercase prose-headings:tracking-widest whitespace-pre-wrap">
                             {post.body}
                         </div>
@@ -84,7 +96,6 @@ export default function NewsArticlePage({ params }: { params: { slug: string } }
                 </EditableBlock>
             </div>
 
-            {/* Modals */}
             <EditModal
                 open={isEditing}
                 onClose={() => setIsEditing(false)}
@@ -94,7 +105,14 @@ export default function NewsArticlePage({ params }: { params: { slug: string } }
                     initialData={post}
                     onCancel={() => setIsEditing(false)}
                     onSubmit={(data) => {
-                        setPost({ ...post, ...data } as NewsPost);
+                        const updatedPost = { ...post, ...data } as NewsPost;
+                        setPost(updatedPost);
+                        
+                        // Persist the change
+                        const allNews = getAllNews();
+                        const updatedAllNews = allNews.map(n => n.id === post.id ? updatedPost : n);
+                        saveNews(updatedAllNews);
+                        
                         setIsEditing(false);
                         toast.success("Article updated");
                     }}
@@ -106,6 +124,11 @@ export default function NewsArticlePage({ params }: { params: { slug: string } }
                 itemName={post.title}
                 onClose={() => setIsDeleting(false)}
                 onConfirm={() => {
+                    // Persist the deletion
+                    const allNews = getAllNews();
+                    const updatedAllNews = allNews.filter(n => n.id !== post.id);
+                    saveNews(updatedAllNews);
+                    
                     setIsDeleting(false);
                     toast.success("Article deleted (redirecting...)");
                     setTimeout(() => window.location.href = '/news', 1500);

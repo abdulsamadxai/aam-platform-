@@ -1,4 +1,16 @@
-const mockChain = (): any => ({
+type MockChain = {
+    select: () => MockChain;
+    eq: () => MockChain;
+    is: () => MockChain;
+    order: () => MockChain;
+    single: () => Promise<{ data: null; error: null }>;
+    insert: () => MockChain;
+    update: () => MockChain;
+    delete: () => MockChain;
+    then: (resolve: (v: unknown) => unknown) => Promise<unknown>;
+};
+
+const mockChain = (): MockChain => ({
     select: () => mockChain(),
     eq: () => mockChain(),
     is: () => mockChain(),
@@ -7,7 +19,7 @@ const mockChain = (): any => ({
     insert: () => mockChain(),
     update: () => mockChain(),
     delete: () => mockChain(),
-    then: (resolve: (v: any) => any) => Promise.resolve({ data: [], error: null }).then(resolve),
+    then: (resolve: (v: unknown) => unknown) => Promise.resolve({ data: [], error: null }).then(resolve),
 });
 
 export function createClient() {
@@ -18,7 +30,7 @@ export function createClient() {
         from: (_table: string) => mockChain(),
         storage: {
             from: (_bucket: string) => ({
-                upload: async (path: string, _file: any, _opts?: any) =>
+                upload: async (path: string, _file: unknown, _opts?: unknown) =>
                     ({ data: { path }, error: null }),
                 getPublicUrl: (path: string) =>
                     ({ data: { publicUrl: `/mock-storage/${path}` } }),

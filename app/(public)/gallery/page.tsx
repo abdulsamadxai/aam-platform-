@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { PageHeader } from "@/components/PageHeader";
-import { getAllGalleryAlbums } from "@/lib/mock-data";
+import { getAllGalleryAlbums, saveGalleryAlbums } from "@/lib/mock-data";
 import { GalleryAlbum } from "@/types";
 import { EditableBlock } from "@/components/admin/EditableBlock";
 import { EditModal } from "@/components/admin/EditModal";
@@ -11,6 +11,7 @@ import { GalleryAlbumForm } from "@/components/admin/forms/GalleryAlbumForm";
 import { useAdmin } from "@/lib/admin-context";
 import { Plus } from "lucide-react";
 import { toast } from "react-hot-toast";
+import Link from "next/link";
 
 export default function GalleryPage() {
   const { isEditMode } = useAdmin();
@@ -50,18 +51,20 @@ export default function GalleryPage() {
                 onEdit={() => setEditingAlbum(album)}
                 onDelete={() => setDeletingAlbum(album)}
               >
-                <div className="group relative aspect-square overflow-hidden cursor-pointer border border-white/5">
-                  <div
-                    className="absolute inset-0 bg-cover bg-center grayscale group-hover:grayscale-0 group-hover:scale-110 transition-all duration-700"
-                    style={{ backgroundImage: `url('${album.cover_image_url || 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&q=80&w=2070'}')` }}
-                  />
-                  <div className="absolute inset-0 bg-black/60 group-hover:bg-black/40 transition-colors" />
-                  <div className="absolute inset-0 p-8 flex flex-col justify-end">
-                    <span className="text-[10px] uppercase font-bold tracking-widest text-aam-grey mb-2">{album.event_date}</span>
-                    <h3 className="text-xl font-bold uppercase tracking-tight mb-2 text-white">{album.title}</h3>
-                    <div className="text-[10px] uppercase font-medium text-white/50">{album.photos?.length || 0} Photos</div>
+                <Link href={`/gallery/${album.id}`}>
+                  <div className="group relative aspect-square overflow-hidden cursor-pointer border border-white/5">
+                    <div
+                      className="absolute inset-0 bg-cover bg-center grayscale group-hover:grayscale-0 group-hover:scale-110 transition-all duration-700"
+                      style={{ backgroundImage: `url('${album.cover_image_url || 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&q=80&w=2070'}')` }}
+                    />
+                    <div className="absolute inset-0 bg-black/60 group-hover:bg-black/40 transition-colors" />
+                    <div className="absolute inset-0 p-8 flex flex-col justify-end">
+                      <span className="text-[10px] uppercase font-bold tracking-widest text-aam-grey mb-2">{album.event_date}</span>
+                      <h3 className="text-xl font-bold uppercase tracking-tight mb-2 text-white">{album.title}</h3>
+                      <div className="text-[10px] uppercase font-medium text-white/50">{album.photos?.length || 0} Photos</div>
+                    </div>
                   </div>
-                </div>
+                </Link>
               </EditableBlock>
             ))}
             {albums.length === 0 && (
@@ -82,11 +85,24 @@ export default function GalleryPage() {
           onCancel={() => { setEditingAlbum(null); setIsAddingAlbum(false); }}
           onSubmit={(data) => {
             if (isAddingAlbum) {
-              setAlbums(prev => [{ ...data, id: Date.now().toString(), is_published: true, photos: [] } as any, ...prev]);
+              const newAlbum = {
+                ...data,
+                id: Date.now().toString(),
+                is_published: true,
+                cover_image_url: data.photos?.[0] || 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=800',
+                photos: data.photos?.map((url: string, i: number) => ({ id: `p-${Date.now()}-${i}`, url })) || [],
+                created_at: new Date().toISOString()
+              };
+              const updatedAlbums = [newAlbum as any, ...albums];
+              setAlbums(updatedAlbums);
+              saveGalleryAlbums(updatedAlbums);
               setIsAddingAlbum(false);
               toast.success("Gallery album created");
             } else {
-              setAlbums(prev => prev.map(item => item.id === editingAlbum.id ? { ...item, ...data } : item));
+              const updatedPhotos = data.photos?.map((url: string, i: number) => ({ id: `p-${Date.now()}-${i}`, url })) || [];
+              const updatedAlbums = albums.map(item => item.id === editingAlbum.id ? { ...item, ...data, photos: updatedPhotos } : item);
+              setAlbums(updatedAlbums);
+              saveGalleryAlbums(updatedAlbums);
               setEditingAlbum(null);
               toast.success("Gallery album updated");
             }
@@ -99,7 +115,9 @@ export default function GalleryPage() {
         itemName={deletingAlbum?.title || ""}
         onClose={() => setDeletingAlbum(null)}
         onConfirm={() => {
-          setAlbums(prev => prev.filter(item => item.id !== deletingAlbum.id));
+          const updatedAlbums = albums.filter(item => item.id !== deletingAlbum.id);
+          setAlbums(updatedAlbums);
+          saveGalleryAlbums(updatedAlbums);
           setDeletingAlbum(null);
           toast.success("Gallery album deleted");
         }}

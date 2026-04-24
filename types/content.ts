@@ -93,6 +93,7 @@ export interface AGMRecord {
     id: string
     year: number
     date_held: string
+    title: string
     resolutions: string
     minutes_file_url?: string
 }
@@ -134,8 +135,38 @@ export interface RegistrationApplication {
     submitted_at: string
 }
 
+export interface JobApplication {
+    id: string
+    job_id: string
+    job_title: string
+    company_name: string
+    full_name: string
+    email: string
+    phone: string
+    nationality: string
+    years_experience: string
+    current_employer?: string
+    cover_letter: string
+    portfolio_url?: string
+    status: 'new' | 'reviewed' | 'shortlisted' | 'rejected'
+    applied_at: string
+}
+
 export interface SitePage {
     slug: string
     title: string
     content: { heading: string; body: string }[]
+}
+
+export interface TrainingRegistration {
+    id: string
+    training_id: string
+    training_title: string
+    full_name: string
+    email: string
+    phone: string
+    company?: string
+    notes?: string
+    status: 'new' | 'reviewed' | 'approved' | 'rejected'
+    applied_at: string
 }

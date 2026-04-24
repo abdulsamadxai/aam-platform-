@@ -12,7 +12,9 @@ import {
   Building2,
   FileText,
   Image as ImageIcon,
-  Activity
+  Activity,
+  ClipboardList,
+  MessageSquare
 } from "lucide-react";
 import Link from "next/link";
 import {
@@ -20,10 +22,12 @@ import {
   getAllEvents,
   getAllMembers,
   getAllJobs,
-  getAllCompetitions,
   getAllTraining,
   getAllAlbums,
-  getAllFirms
+  getAllFirms,
+  getAllTrainingRegistrations,
+  getAllThreads,
+  getAllAGMRecords
 } from "@/lib/mock-data";
 
 export default function AdminDashboard() {
@@ -33,22 +37,25 @@ export default function AdminDashboard() {
     news: getAllNews().length,
     events: getAllEvents().length,
     jobs: getAllJobs().length,
-    competitions: getAllCompetitions().length,
     training: getAllTraining().length,
+    trainingApps: getAllTrainingRegistrations().length,
     gallery: getAllAlbums().length,
-    agm: 6 // Mock count for AGM records
+    agm: getAllAGMRecords().length,
+    threads: getAllThreads().length
   }), []);
 
   const modules = [
     { name: "Global Newsfeed", icon: Newspaper, count: stats.news, href: "/news" },
     { name: "Events Calendar", icon: Calendar, count: stats.events, href: "/events" },
     { name: "Job Vacancies", icon: Briefcase, count: stats.jobs, href: "/jobs" },
-    { name: "Competitions", icon: Trophy, count: stats.competitions, href: "/competitions" },
+    { name: "Job Applications", icon: ClipboardList, count: "→", href: "/admin/applications" },
     { name: "Member Directory", icon: Users, count: stats.members, href: "/members" },
     { name: "Registered Firms", icon: Building2, count: stats.firms, href: "/firms" },
     { name: "Training Academy", icon: ShieldCheck, count: stats.training, href: "/training" },
+    { name: "Training Interest", icon: ClipboardList, count: stats.trainingApps, href: "/admin/training-applications" },
     { name: "Media Gallery", icon: ImageIcon, count: stats.gallery, href: "/gallery" },
-    { name: "AGM Records", icon: FileText, count: stats.agm, href: "/agm" },
+    { name: "AGM Records", icon: FileText, count: stats.agm, href: "/admin/agm" },
+    { name: "Discourse Moderation", icon: MessageSquare, count: stats.threads, href: "/admin/forum" },
   ];
 
   return (
@@ -155,7 +162,6 @@ export default function AdminDashboard() {
               <div className="space-y-6">
                 {[
                   { action: "Admin Session Initiated", time: "2 mins ago" },
-                  { action: "Module Update: Competitions", time: "45 mins ago" },
                   { action: "Member Registry Sync", time: "3 hours ago" },
                   { action: "System Backup Completed", time: "12 hours ago" },
                 ].map((log, i) => (

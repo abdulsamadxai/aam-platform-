@@ -40,18 +40,19 @@ export default async function EventDetailPage({ params }: EventPageProps) {
                         </header>
 
                         {event.cover_image_url && (
-                            <div className="aspect-[21/9] bg-aam-near-black border border-white/10 overflow-hidden">
-                                <img src={event.cover_image_url} alt="" className="w-full h-full object-cover grayscale opacity-60" />
+                            <div className="aspect-[21/9] bg-aam-near-black border border-white/10 overflow-hidden relative group">
+                                <img src={event.cover_image_url} alt="" className="w-full h-full object-cover opacity-80 group-hover:scale-105 transition-transform duration-700" />
+                                <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-60" />
                             </div>
                         )}
 
-                        <div className="prose prose-invert max-w-none prose-p:text-aam-grey prose-p:leading-relaxed whitespace-pre-wrap pt-8">
+                        <div className="prose prose-invert max-w-none prose-p:text-aam-grey prose-p:leading-relaxed prose-headings:uppercase prose-headings:tracking-widest whitespace-pre-wrap pt-8">
                             {event.description}
                         </div>
                     </div>
 
                     <aside className="space-y-12">
-                        <div className="bg-white text-black p-10 space-y-10">
+                        <div className="bg-white text-black p-10 space-y-10 shadow-[20px_20px_0px_0px_rgba(255,255,255,0.1)]">
                             <h3 className="text-xs font-bold uppercase tracking-[0.3em] border-b border-black/10 pb-4">Schedule & Venue</h3>
                             <div className="space-y-8">
                                 <div className="space-y-3">
@@ -68,6 +69,7 @@ export default async function EventDetailPage({ params }: EventPageProps) {
                                     </div>
                                     <div className="text-lg font-bold uppercase tracking-tight">
                                         {startDate.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })}
+                                        {event.end_at && ` — ${new Date(event.end_at).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })}`}
                                     </div>
                                 </div>
                                 <div className="space-y-3">
@@ -79,7 +81,7 @@ export default async function EventDetailPage({ params }: EventPageProps) {
                                     </div>
                                 </div>
                             </div>
-                            <Button className="w-full bg-black text-white hover:bg-aam-near-black h-14 rounded-none text-[10px] font-bold uppercase tracking-widest">
+                            <Button className="w-full bg-black text-white hover:bg-aam-near-black h-14 rounded-none text-[10px] font-bold uppercase tracking-widest transition-all">
                                 Register Interest
                             </Button>
                         </div>
