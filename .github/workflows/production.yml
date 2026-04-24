@@ -1,0 +1,47 @@
+name: Production Deployment
+
+on:
+  push:
+    branches:
+      - production
+
+jobs:
+  deploy_supabase_prod:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Setup Supabase CLI
+        uses: supabase/setup-cli@v1
+        with:
+          version: latest
+
+      - name: Link Project
+        run: supabase link --project-ref ${{ secrets.PROD_SUPABASE_PROJECT_ID }} -p ${{ secrets.PROD_SUPABASE_DB_PASSWORD }}
+
+      - name: Deploy Migrations
+        run: supabase db push
+
+  deploy_app_prod:
+    needs: deploy_supabase_prod
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Setup Node
+        uses: actions/setup-node@v3
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build and Test
+        run: npm run build
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.PROD_NEXT_PUBLIC_SUPABASE_URL }}
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.PROD_NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.PROD_SUPABASE_SERVICE_ROLE_KEY }}
+
+      # Note: Add your preferred hosting provider deployment step here (Vercel, Netlify, etc.)

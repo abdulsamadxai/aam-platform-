@@ -1,8 +1,13 @@
-/* eslint-disable @typescript-eslint/no-require-imports */
+require('dotenv').config();
 const { createClient } = require('@supabase/supabase-js');
 
-const supabaseUrl = 'http://127.0.0.1:54321';
-const supabaseServiceKey = 'your-service-role-key'; // This should be replaced with the actual key from .env.local
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+
+if (!supabaseUrl || !supabaseServiceKey) {
+    console.error('CRITICAL_FAILURE: Missing Supabase environment variables.');
+    process.exit(1);
+}
 
 const supabase = createClient(supabaseUrl, supabaseServiceKey, {
     auth: {
@@ -14,8 +19,8 @@ const supabase = createClient(supabaseUrl, supabaseServiceKey, {
 async function createAdmin() {
     console.log('--- INITIATING ADMIN CREATION PROTOCOL ---');
 
-    const email = 'admin@aamaldives.mv';
-    const password = 'AAMAdmin2026!';
+    const email = process.env.ADMIN_EMAIL || 'admin@aamaldives.mv';
+    const password = process.env.ADMIN_PASSWORD || 'AAMAdmin2026!';
 
     // 1. Create the user in Auth
     const { data: userData, error: authError } = await supabase.auth.admin.createUser({
