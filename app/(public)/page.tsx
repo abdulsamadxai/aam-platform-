@@ -321,7 +321,7 @@ export default function HomePage() {
           onSubmit={async (data) => {
             const { saveNews } = await import('@/lib/api');
             if (isAddingNews) {
-              await saveNews({ ...data, is_published: true });
+              await saveNews({ ...data, published_at: new Date().toISOString() });
               toast.success("News post created");
             } else if (editingNews) {
               await saveNews({ ...editingNews, ...data });

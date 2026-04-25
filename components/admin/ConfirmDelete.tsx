@@ -22,7 +22,7 @@ export function ConfirmDelete({ open, onClose, onConfirm, itemName, loading }: P
                 <div>
                     <p className="text-aam-grey text-xs uppercase tracking-widest mb-1">Warning</p>
                     <p className="text-sm font-medium text-white px-2">
-                        Are you sure you want to delete <span className="text-aam-error font-bold">"{itemName}"</span>?
+                        Are you sure you want to delete <span className="text-aam-error font-bold">&quot;{itemName}&quot;</span>?
                     </p>
                     <p className="text-[10px] text-aam-dark-grey uppercase tracking-wider mt-4">
                         This action cannot be undone.

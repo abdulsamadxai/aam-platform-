@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { PageHeader } from "@/components/PageHeader";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -69,7 +70,7 @@ export default function RegisterPage() {
             Your application has been received. AAM will review your credentials and contact you at <strong>{formData.email}</strong> within 5 working days.
           </p>
           <Button className="btn-primary" asChild>
-            <a href="/">Return Home</a>
+            <Link href="/">Return Home</Link>
           </Button>
         </div>
       </main>
