@@ -13,8 +13,9 @@ export default function GlobalError({
   reset: () => void;
 }) {
   useEffect(() => {
-    // Log the error to an error reporting service like Sentry here
-    console.error("Global Error Boundary caught:", error);
+    if (process.env.NODE_ENV === "development") {
+      console.error("Global Error Boundary caught:", error);
+    }
   }, [error]);
 
   return (

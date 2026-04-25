@@ -4,8 +4,20 @@ import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 
 export async function loginAction(formData: FormData) {
-  const email = formData.get("email") as string;
-  const password = formData.get("password") as string;
+  const email = (formData.get("email") as string | null)?.trim() ?? "";
+  const password = (formData.get("password") as string | null) ?? "";
+
+  if (!email || !password) {
+    return { error: "Email and password are required." };
+  }
+
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    return { error: "Please enter a valid email address." };
+  }
+
+  if (password.length < 6) {
+    return { error: "Password must be at least 6 characters." };
+  }
 
   const supabase = await createClient();
 
@@ -15,7 +27,7 @@ export async function loginAction(formData: FormData) {
   });
 
   if (error) {
-    return { error: error.message };
+    return { error: "Invalid email or password." };
   }
 
   if (data.user) {
@@ -27,5 +39,5 @@ export async function loginAction(formData: FormData) {
     }
   }
 
-  return { error: "Unknown error occurred" };
+  return { error: "An unexpected error occurred. Please try again." };
 }

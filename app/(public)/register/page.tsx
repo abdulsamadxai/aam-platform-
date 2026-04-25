@@ -8,11 +8,13 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
 import { submitRegistrationForm } from "@/lib/actions/forms";
+import { toast } from "react-hot-toast";
+import type { MemberCategory } from "@/types";
 
 const categories = [
-  { id: "professional", title: "Professional Member", desc: "Fully qualified architects with recognised degrees and min. 2 years experience." },
-  { id: "general", title: "General Member", desc: "Graduate architects working toward full professional status." },
-  { id: "associate", title: "Associate Member", desc: "Architecture students and allied built environment professionals." },
+  { id: "professional" as MemberCategory, title: "Professional Member", desc: "Fully qualified architects with recognised degrees and min. 2 years experience." },
+  { id: "general" as MemberCategory, title: "General Member", desc: "Graduate architects working toward full professional status." },
+  { id: "associate" as MemberCategory, title: "Associate Member", desc: "Architecture students and allied built environment professionals." },
 ];
 
 export default function RegisterPage() {
@@ -23,7 +25,7 @@ export default function RegisterPage() {
     applicant_name: "",
     email: "",
     phone: "",
-    category_applied: "professional",
+    category_applied: "professional" as MemberCategory,
     university: "",
     graduation_year: "",
     experience_years: "0-2",
@@ -33,25 +35,30 @@ export default function RegisterPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!formData.agreed_to_terms) return;
-    
+    if (!formData.agreed_to_terms) {
+      toast.error("You must agree to the AAM Code of Conduct before submitting.");
+      return;
+    }
+
+    setSubmitting(true);
+
     try {
       await submitRegistrationForm({
         full_name: formData.applicant_name,
         email: formData.email,
         phone: formData.phone,
-        category_applied: formData.category_applied as any,
+        category_applied: formData.category_applied,
         university: formData.university,
         graduation_year: formData.graduation_year,
-        experience_years: formData.experience_years as any,
+        experience_years: formData.experience_years,
         documents_url: formData.documents_url,
       });
-      
-      setSubmitting(false);
+
       setIsSuccess(true);
       window.scrollTo({ top: 0, behavior: "smooth" });
-    } catch (error) {
-      console.error("Submission error:", error);
+    } catch {
+      toast.error("Failed to submit application. Please check your details and try again.");
+    } finally {
       setSubmitting(false);
     }
   };
@@ -184,7 +191,11 @@ export default function RegisterPage() {
                   </Label>
                 </div>
 
-                <Button disabled={submitting || !formData.agreed_to_terms} type="submit" className="btn-primary w-full h-16 text-sm">
+                <Button
+                  disabled={submitting || !formData.agreed_to_terms}
+                  type="submit"
+                  className="btn-primary w-full h-16 text-sm"
+                >
                   {submitting ? "Submitting Application..." : "Submit Application"}
                 </Button>
               </form>

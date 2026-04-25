@@ -48,8 +48,8 @@ export default function AboutPage() {
         if (content.mission) setMission(content.mission);
         if (content.vision) setVision(content.vision);
       }
-    } catch (error) {
-      console.error(error);
+    } catch {
+      // fail silently — content falls back to defaults
     } finally {
       setLoading(false);
     }

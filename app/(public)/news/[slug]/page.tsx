@@ -36,8 +36,8 @@ export default function NewsArticlePage({ params }: { params: Promise<{ slug: st
         try {
             const data = await getNewsPostBySlug(slug);
             setPost(data);
-        } catch (error) {
-            console.error(error);
+        } catch {
+            // post stays null — not-found state is rendered
         } finally {
             setIsLoading(false);
         }

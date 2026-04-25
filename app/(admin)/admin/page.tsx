@@ -60,32 +60,30 @@ export default function AdminDashboard() {
     try {
       const supabase = createClient();
       
-      const safeFetch = async (fn: () => Promise<any>, fallback: any = [], name: string = "Data") => {
+      const safeFetch = async <T,>(fn: () => Promise<T>, fallback: T): Promise<T> => {
         try {
           return await fn();
-        } catch (e: any) {
-          console.error(`Fetch failed for ${name}:`, e);
-          toast.error(`Failed to load ${name}. Retrying later.`);
+        } catch {
           return fallback;
         }
       };
 
       const [
-        news, events, members, jobs, training, 
-        gallery, firms, trainingRegs, threads, 
+        news, events, members, jobs, training,
+        gallery, firms, trainingRegs, threads,
         agm, jobApps, contactSubsResult
       ] = await Promise.all([
-        safeFetch(getAllNews, [], "News"),
-        safeFetch(getAllEvents, [], "Events"),
-        safeFetch(getAllMembers, [], "Members"),
-        safeFetch(getAllJobs, [], "Jobs"),
-        safeFetch(getAllTraining, [], "Training"),
-        safeFetch(getAllGalleryAlbums, [], "Gallery"),
-        safeFetch(getAllFirms, [], "Firms"),
-        safeFetch(getAllTrainingRegistrations, [], "Training Registrations"),
-        safeFetch(getAllThreads, [], "Forum Threads"),
-        safeFetch(getAllAGMRecords, [], "AGM Records"),
-        safeFetch(getAllJobApplications, [], "Job Applications"),
+        safeFetch(getAllNews, []),
+        safeFetch(getAllEvents, []),
+        safeFetch(getAllMembers, []),
+        safeFetch(getAllJobs, []),
+        safeFetch(getAllTraining, []),
+        safeFetch(getAllGalleryAlbums, []),
+        safeFetch(getAllFirms, []),
+        safeFetch(getAllTrainingRegistrations, []),
+        safeFetch(getAllThreads, []),
+        safeFetch(getAllAGMRecords, []),
+        safeFetch(getAllJobApplications, []),
         supabase.from('contact_submissions').select('id, name, subject, created_at, status').order('created_at', { ascending: false }).limit(10)
       ]);
 
@@ -104,9 +102,8 @@ export default function AdminDashboard() {
         trainingRegs,
         contactSubs: contactSubsResult.data || []
       });
-    } catch (error) {
-      console.error(error);
-      toast.error("Failed to synchronize dashboard telemetry");
+    } catch {
+      toast.error("Failed to synchronize dashboard. Please refresh.");
     } finally {
         setLoading(false);
     }

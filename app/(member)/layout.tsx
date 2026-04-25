@@ -8,14 +8,12 @@ import {
     User,
     MessageSquare,
     FileText,
-    Award,
     LogOut
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useAdmin } from "@/lib/admin-context";
 import { Logo } from "@/components/Logo";
-
-
+import { createClient } from "@/lib/supabase/client";
 
 export default function MemberLayout({ children }: { children: React.ReactNode }) {
     const pathname = usePathname();
@@ -23,8 +21,10 @@ export default function MemberLayout({ children }: { children: React.ReactNode }
     const { isAdmin } = useAdmin();
 
     const handleLogout = async () => {
-        // Simulated logout
+        const supabase = createClient();
+        await supabase.auth.signOut();
         router.push("/login");
+        router.refresh();
     };
 
     const menuItems = [
@@ -36,7 +36,7 @@ export default function MemberLayout({ children }: { children: React.ReactNode }
 
     return (
         <div className="flex min-h-screen bg-black">
-            {/* Mobile Header (Hidden on Desktop) */}
+            {/* Mobile Header */}
             <div className={cn(
                 "md:hidden fixed left-0 right-0 h-16 bg-black border-b border-white/10 z-40 flex items-center justify-between px-6",
                 isAdmin ? "top-[44px]" : "top-0"
@@ -48,15 +48,16 @@ export default function MemberLayout({ children }: { children: React.ReactNode }
             </div>
 
             {/* Member Sidebar */}
-            <aside className={cn(
-                "w-72 border-r border-white/10 hidden md:flex flex-col h-[calc(100vh-var(--admin-offset,0px))] sticky bg-black",
-                isAdmin ? "top-[44px]" : "top-0"
-            )} style={{ "--admin-offset": isAdmin ? "44px" : "0px" } as any}>
+            <aside
+                className={cn(
+                    "w-72 border-r border-white/10 hidden md:flex flex-col sticky bg-black",
+                    isAdmin ? "top-[44px] h-[calc(100vh-44px)]" : "top-0 h-screen"
+                )}
+            >
                 <div className="p-8 border-b border-white/10">
                     <Logo variant="light" size="sm" />
                 </div>
                 <nav className="p-6 space-y-2 flex-grow overflow-y-auto">
-
                     {menuItems.map((item) => (
                         <Link
                             key={item.href}
@@ -88,7 +89,6 @@ export default function MemberLayout({ children }: { children: React.ReactNode }
                     {children}
                 </div>
             </main>
-
         </div>
     );
 }

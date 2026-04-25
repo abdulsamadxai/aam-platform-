@@ -8,11 +8,13 @@ import Link from "next/link";
 import { Input } from "@/components/ui/input";
 import { getAllThreads } from "@/lib/api";
 import { cn } from "@/lib/utils";
+import type { ForumThread } from "@/types/forum";
 
 const CATEGORIES = ["All", "Technical", "Regulatory", "General", "CPD", "Events"];
 
 export default function ForumPage() {
-    const [threads, setThreads] = useState<any[]>([]);
+    const [threads, setThreads] = useState<ForumThread[]>([]);
+    const [loading, setLoading] = useState(true);
     const [search, setSearch] = useState("");
     const [activeCategory, setActiveCategory] = useState("All");
 
@@ -21,8 +23,10 @@ export default function ForumPage() {
             try {
                 const data = await getAllThreads();
                 setThreads(data);
-            } catch (error) {
-                console.error("Failed to load threads", error);
+            } catch {
+                // fail silently — empty state is shown
+            } finally {
+                setLoading(false);
             }
         }
         fetchThreads();
@@ -88,7 +92,12 @@ export default function ForumPage() {
                 </aside>
 
                 <div className="flex-grow space-y-6">
-                    {filtered.map((thread) => (
+                    {loading && (
+                        <div className="py-20 text-center border border-dashed border-white/10">
+                            <p className="text-aam-grey uppercase tracking-widest text-xs animate-pulse">Loading discussions...</p>
+                        </div>
+                    )}
+                    {!loading && filtered.map((thread) => (
                         <Link key={thread.id} href={`/member/forum/${thread.id}`} className="block group bg-aam-near-black border border-white/5 p-8 hover:border-white/20 transition-all">
                             <div className="flex justify-between items-start mb-6">
                                 <div className="flex items-center gap-4">
@@ -119,7 +128,7 @@ export default function ForumPage() {
                         </Link>
                     ))}
 
-                    {filtered.length === 0 && (
+                    {!loading && filtered.length === 0 && (
                         <div className="py-20 text-center border border-dashed border-white/10">
                             <p className="text-aam-grey uppercase tracking-widest text-xs">No discussions found.</p>
                         </div>

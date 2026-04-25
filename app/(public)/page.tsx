@@ -51,46 +51,41 @@ export default function HomePage() {
   async function init() {
     setLoading(true);
     try {
-      const supabase = createClient();
-      
-      const safeFetch = async (fn: () => Promise<any>, fallback: any = []) => {
+      const safeFetch = async <T,>(fn: () => Promise<T>, fallback: T): Promise<T> => {
         try {
           return await fn();
-        } catch (e: any) {
-          console.error(`Fetch failed on Home Page:`, e?.message || e);
+        } catch {
           return fallback;
         }
       };
 
       const [newsData, eventsData, settings, statsData] = await Promise.all([
-        safeFetch(() => getPublishedNews(3)),
-        safeFetch(() => getUpcomingEvents(2)),
-        safeFetch(() => getSiteSettings(), {}),
+        safeFetch(() => getPublishedNews(3), []),
+        safeFetch(() => getUpcomingEvents(2), []),
+        safeFetch(() => getSiteSettings(), {} as Record<string, unknown>),
         safeFetch(() => fetchPlatformStats(), { totalMembers: 0, professionalMembers: 0 })
       ]);
 
       setNews(newsData);
       setEvents(eventsData);
       setStats({ total: statsData.totalMembers, professional: statsData.professionalMembers });
-      
+
       if (settings.hero_headline) {
         setHeroData({
-          headline: settings.hero_headline,
-          subheadline: settings.hero_subheadline,
-          cta_primary_label: settings.hero_cta_primary_label,
-          cta_primary_url: settings.hero_cta_primary_url,
-          cta_secondary_label: settings.hero_cta_secondary_label,
-          cta_secondary_url: settings.hero_cta_secondary_url,
+          headline: String(settings.hero_headline),
+          subheadline: String(settings.hero_subheadline ?? ""),
+          cta_primary_label: String(settings.hero_cta_primary_label ?? ""),
+          cta_primary_url: String(settings.hero_cta_primary_url ?? "/register"),
+          cta_secondary_label: String(settings.hero_cta_secondary_label ?? ""),
+          cta_secondary_url: String(settings.hero_cta_secondary_url ?? "/news"),
         });
       }
-    } catch (error) {
-      console.error(error);
     } finally {
       setLoading(false);
     }
   }
 
-  const handleHeroSubmit = async (data: any) => {
+  const handleHeroSubmit = async (data: typeof heroData) => {
     try {
       const supabase = createClient();
       const updates = Object.entries(data).map(([key, value]) => ({
@@ -98,15 +93,15 @@ export default function HomePage() {
         value: String(value),
         updated_at: new Date().toISOString()
       }));
-      
+
       const { error } = await supabase.from('site_settings').upsert(updates);
       if (error) throw error;
-      
+
       setHeroData(data);
       setIsHeroModalOpen(false);
       toast.success("Hero section updated");
-    } catch (error) {
-      toast.error("Failed to update settings");
+    } catch {
+      toast.error("Failed to update settings. You may not have permission.");
     }
   };
 

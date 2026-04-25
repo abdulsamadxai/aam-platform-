@@ -23,8 +23,8 @@ export default function GalleryAlbumPage() {
         try {
             const data = await getAlbumById(id);
             setAlbum(data);
-        } catch (error) {
-            console.error(error);
+        } catch {
+            // album stays null — not-found state is rendered
         } finally {
             setLoading(false);
         }

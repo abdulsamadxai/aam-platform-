@@ -27,7 +27,6 @@ export async function submitContactForm(formData: z.infer<typeof contactSchema>)
     .insert(result.data);
 
   if (error) {
-    console.error("Contact submission error:", error);
     throw new Error("Failed to submit contact form");
   }
 }
@@ -51,7 +50,6 @@ export async function submitRegistrationForm(formData: z.infer<typeof registrati
     .insert(result.data);
 
   if (error) {
-    console.error("Registration submission error:", error);
     throw new Error("Failed to submit registration application");
   }
 }
@@ -75,7 +73,6 @@ export async function submitJobApplication(formData: z.infer<typeof jobApplicati
     .insert(result.data);
 
   if (error) {
-    console.error("Job application error:", error);
     throw new Error("Failed to submit job application");
   }
 }
@@ -99,7 +96,6 @@ export async function submitTrainingRegistration(formData: z.infer<typeof traini
     .insert(result.data);
 
   if (error) {
-    console.error("Training registration error:", error);
     throw new Error("Failed to submit training registration");
   }
 }

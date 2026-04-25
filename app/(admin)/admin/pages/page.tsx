@@ -20,8 +20,8 @@ export default function PagesManagerPage() {
         try {
             const data = await getAllPages();
             setPages(data);
-        } catch (error) {
-            console.error(error);
+        } catch {
+            // fail silently — empty state is shown
         } finally {
             setLoading(false);
         }
