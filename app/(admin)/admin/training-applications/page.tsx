@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import {
   getAllTrainingRegistrations,
   updateTrainingRegistrationStatus,
-} from "@/lib/mock-data";
+} from "@/lib/api";
 import { TrainingRegistration } from "@/types";
 import {
   ShieldCheck, Calendar, ChevronDown, Eye, Filter,

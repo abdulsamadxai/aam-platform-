@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { PageHeader } from "@/components/PageHeader";
 import Link from "next/link";
-import { getAllNews, saveNews } from "@/lib/mock-data";
+import { getAllNews, saveNews } from "@/lib/api";
 import { format } from "date-fns";
 import { EditableBlock } from "@/components/admin/EditableBlock";
 import { EditModal } from "@/components/admin/EditModal";

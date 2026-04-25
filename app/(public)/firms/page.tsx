@@ -5,7 +5,7 @@ import { PageHeader } from "@/components/PageHeader";
 import { Input } from "@/components/ui/input";
 import { Search, ArrowUpDown, Plus, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { getAllFirms } from "@/lib/mock-data";
+import { getAllFirms } from "@/lib/api";
 import { useAdmin } from "@/lib/admin-context";
 import { EditableBlock } from "@/components/admin/EditableBlock";
 import { EditModal } from "@/components/admin/EditModal";

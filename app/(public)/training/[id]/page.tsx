@@ -1,4 +1,4 @@
-import { getTrainingById } from "@/lib/mock-data";
+import { getTrainingById } from "@/lib/api";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft, BookOpen, Clock, Globe, Award, CheckCircle2, Bookmark, Calendar } from "lucide-react";

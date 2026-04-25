@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { getAllPages } from "@/lib/mock-data";
+import { getAllPages } from "@/lib/api";
 import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
 import { ContentTable } from "@/components/admin/ContentTable";
 import { FileText, Clock, ExternalLink } from "lucide-react";

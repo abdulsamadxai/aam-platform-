@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Mail, Phone, MapPin, CheckCircle2, Loader2 } from "lucide-react";
-import { saveContactSubmission } from "@/lib/mock-data";
+import { submitContactForm } from "@/lib/actions/forms";
 import { toast } from "react-hot-toast";
 
 export default function ContactPage() {
@@ -20,12 +20,12 @@ export default function ContactPage() {
     setSubmitting(true);
 
     try {
-        await saveContactSubmission({
+        await submitContactForm({
             name: formData.name,
             email: formData.email,
             subject: formData.subject,
             message: formData.message,
-            status: 'new'
+            status: "new",
         });
         setIsSuccess(true);
     } catch (error) {
@@ -79,7 +79,8 @@ export default function ContactPage() {
                   </div>
                   <div>
                     <div className="text-[10px] uppercase font-bold tracking-widest text-aam-grey mb-1">Email Correspondence</div>
-                    <div className="text-xl font-bold tracking-tight">info@aamaldives.mv</div>
+                    <div className="text-xl font-bold tracking-tight">admin@aamaldives.org</div>
+                    <div className="text-sm font-medium text-aam-grey mt-1">architectsassociation.maldives@gmail.com</div>
                   </div>
                 </div>
 

@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Mail, Smartphone, Send, History, CheckCircle2 } from "lucide-react";
-import { getAllBroadcasts } from "@/lib/mock-data";
+import { getAllBroadcasts } from "@/lib/api";
 import { Broadcast } from "@/types";
 
 export default function AdminBroadcast() {

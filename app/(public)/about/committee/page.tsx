@@ -13,7 +13,7 @@ import { toast } from "react-hot-toast";
 import type { CommitteeMember } from "@/types";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
-import { getAllCommitteeMembers } from "@/lib/mock-data";
+import { getAllCommitteeMembers } from "@/lib/api";
 
 export default function CommitteePage() {
   const { isEditMode } = useAdmin();

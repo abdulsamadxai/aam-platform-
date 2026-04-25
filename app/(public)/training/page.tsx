@@ -12,7 +12,7 @@ import { useAdmin } from "@/lib/admin-context";
 import { Plus, Loader2, X, CheckCircle2 } from "lucide-react";
 import { toast } from "react-hot-toast";
 import { TrainingProgramme, TrainingRegistration } from "@/types";
-import { getAllTraining, saveTrainingRegistration } from "@/lib/mock-data";
+import { getAllTraining, saveTrainingRegistration } from "@/lib/api";
 import { cn } from "@/lib/utils";
 
 export default function TrainingPage() {

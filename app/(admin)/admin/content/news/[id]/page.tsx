@@ -7,7 +7,7 @@ import { NewsForm } from "@/components/admin/content/NewsForm";
 import { NewsPostInput } from "@/lib/validations";
 import { toast } from "react-hot-toast";
 import { Loader2 } from "lucide-react";
-import { getNewsPostBySlug } from "@/lib/mock-data";
+import { getNewsPostBySlug } from "@/lib/api";
 
 export default function EditNewsPage({ params }: { params: { id: string } }) {
     const [initialData, setInitialData] = useState<any>(null);

@@ -3,7 +3,7 @@
 import { notFound, useRouter } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft, Clock, User, Loader2 } from "lucide-react";
-import { getNewsPostBySlug, saveNews } from "@/lib/mock-data";
+import { getNewsPostBySlug, saveNews } from "@/lib/api";
 import { format } from "date-fns";
 import { useState, useEffect, use } from "react";
 import { EditableBlock } from "@/components/admin/EditableBlock";

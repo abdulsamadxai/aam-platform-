@@ -1,3 +1,5 @@
+"use client";
+
 import { FileText, Download, Shield, History } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
@@ -7,6 +9,24 @@ export default function MemberDocuments() {
         { title: "AAM Constitution (Official)", type: "GOVERNANCE", date: "Rev 2023" },
         { title: "CPD Guidelines & Logging Guide", type: "GUIDELINES", date: "Apr 2026" },
     ];
+
+    const handleDownload = (title: string) => {
+        // Create a blob representing the file content
+        const content = `Official Document: ${title}\n\n(This is a placeholder file. In production, this will download the actual PDF from Supabase Storage.)`;
+        const blob = new Blob([content], { type: "text/plain" });
+        const url = URL.createObjectURL(blob);
+        
+        // Create a temporary link element to trigger the download
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = `${title.replace(/[^a-zA-Z0-9]/g, "-").toLowerCase()}.txt`;
+        document.body.appendChild(a);
+        a.click();
+        
+        // Cleanup
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+    };
 
     return (
         <div className="space-y-12 animate-in fade-in duration-700">
@@ -35,7 +55,11 @@ export default function MemberDocuments() {
                                             </div>
                                         </div>
                                     </div>
-                                    <Button variant="ghost" className="text-aam-grey hover:text-white group">
+                                    <Button 
+                                        variant="ghost" 
+                                        className="text-aam-grey hover:text-white group"
+                                        onClick={() => handleDownload(doc.title)}
+                                    >
                                         <Download className="w-5 h-5 group-hover:translate-y-0.5 transition-transform" />
                                     </Button>
                                 </div>

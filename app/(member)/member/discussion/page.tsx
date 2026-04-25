@@ -15,7 +15,7 @@ import {
 import Link from "next/link";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
-import { getAllThreads } from "@/lib/mock-data";
+import { getAllThreads } from "@/lib/api";
 
 export default async function ForumPage() {
   const threads = await getAllThreads();

@@ -30,11 +30,10 @@ export default async function MemberDashboard() {
       </header>
 
       {/* Stats Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {[
           { label: "Verification Status", value: profile.status, icon: Shield, detail: `${profile.category.toUpperCase()} Registry` },
           { label: "AAM ID", value: profile.aam_id || "PENDING", icon: null, detail: "Core Identifier" },
-          { label: "CPD Points", value: "0 / 20", icon: Award, detail: "2026 Cycle" }, // Mocked for now until CPD table exists
           { label: "Renewal Due", value: "Jan 2027", icon: null, detail: "Annual Requirement" },
         ].map((stat, i) => (
           <div key={i} className="bg-aam-near-black p-8 border border-white/5 space-y-6 group hover:border-white/20 transition-all relative overflow-hidden">

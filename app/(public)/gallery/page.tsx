@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { PageHeader } from "@/components/PageHeader";
-import { getAllGalleryAlbums } from "@/lib/mock-data";
+import { getAllGalleryAlbums } from "@/lib/api";
 import { GalleryAlbum } from "@/types";
 import { EditableBlock } from "@/components/admin/EditableBlock";
 import { EditModal } from "@/components/admin/EditModal";

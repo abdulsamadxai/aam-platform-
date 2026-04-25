@@ -24,7 +24,7 @@ import {
 import Link from "next/link";
 import { FileUploader } from "@/components/shared/FileUploader";
 import { toast } from "react-hot-toast";
-import { getAlbumById } from "@/lib/mock-data";
+import { getAlbumById } from "@/lib/api";
 
 export default function ManageGalleryAlbum() {
     const { id } = useParams() as { id: string };

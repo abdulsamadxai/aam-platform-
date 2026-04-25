@@ -1,7 +1,7 @@
 import { Plus, Edit, Trash2, ExternalLink } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import { getAllNews } from "@/lib/mock-data";
+import { getAllNews } from "@/lib/api";
 import Image from "next/image";
 
 export default async function AdminNews() {

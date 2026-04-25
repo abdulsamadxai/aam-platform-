@@ -7,7 +7,7 @@ import { EventForm } from "@/components/admin/content/EventForm";
 import { EventInput } from "@/lib/validations";
 import { toast } from "react-hot-toast";
 import { Loader2 } from "lucide-react";
-import { getEventById } from "@/lib/mock-data";
+import { getEventById } from "@/lib/api";
 
 export default function EditEventPage({ params }: { params: { id: string } }) {
     const [initialData, setInitialData] = useState<any>(null);

@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { PageHeader } from "@/components/PageHeader";
 import { Button } from "@/components/ui/button";
-import { getAllEvents } from "@/lib/mock-data";
+import { getAllEvents } from "@/lib/api";
 import { format } from "date-fns";
 import { EditableBlock } from "@/components/admin/EditableBlock";
 import { EditModal } from "@/components/admin/EditModal";

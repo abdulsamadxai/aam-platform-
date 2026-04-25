@@ -5,7 +5,7 @@ import { ThreadView } from "@/components/discussion/ThreadView";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, Lock, Trash2, Pin } from "lucide-react";
 import Link from "next/link";
-import { getAllThreads, getAllReplies, updateForumThread, deleteForumThread } from "@/lib/mock-data";
+import { getAllThreads, getAllReplies, updateForumThread, deleteForumThread } from "@/lib/api";
 import { useState, useEffect, use } from "react";
 import { toast } from "react-hot-toast";
 import { ForumThread, ForumReply } from "@/types";

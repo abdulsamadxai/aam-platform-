@@ -6,7 +6,7 @@ import { Label } from "@/components/ui/label";
 import { MessageSquare, User, Clock, Plus, Search } from "lucide-react";
 import Link from "next/link";
 import { Input } from "@/components/ui/input";
-import { getAllThreads } from "@/lib/mock-data";
+import { getAllThreads } from "@/lib/api";
 import { cn } from "@/lib/utils";
 
 const CATEGORIES = ["All", "Technical", "Regulatory", "General", "CPD", "Events"];

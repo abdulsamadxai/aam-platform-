@@ -1,4 +1,4 @@
-import { getAllBroadcasts } from "@/lib/mock-data";
+import { getAllBroadcasts } from "@/lib/api";
 import {
   Table,
   TableBody,

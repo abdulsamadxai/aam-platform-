@@ -2,7 +2,7 @@ import { notFound } from "next/navigation";
 import { ThreadView } from "@/components/forum/ThreadView";
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
-import { getAllThreads } from "@/lib/mock-data";
+import { getAllThreads } from "@/lib/api";
 
 export default async function ForumThreadPage({ params }: { params: Promise<{ id: string }> }) {
     const { id } = await params;

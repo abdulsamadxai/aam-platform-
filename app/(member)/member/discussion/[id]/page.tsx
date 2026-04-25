@@ -3,7 +3,7 @@ import { ThreadView } from "@/components/discussion/ThreadView";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
-import { getAllThreads, getAllReplies } from "@/lib/mock-data";
+import { getAllThreads, getAllReplies } from "@/lib/api";
 
 export default async function ThreadPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;

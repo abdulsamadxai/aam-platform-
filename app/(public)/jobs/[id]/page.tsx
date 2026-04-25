@@ -1,4 +1,4 @@
-import { getJobById } from "@/lib/mock-data";
+import { getJobById } from "@/lib/api";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft, Building2, Calendar, FileText, Briefcase, ChevronRight } from "lucide-react";

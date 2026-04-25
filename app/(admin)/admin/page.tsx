@@ -28,7 +28,7 @@ import {
   getAllThreads,
   getAllAGMRecords,
   getAllJobApplications,
-} from "@/lib/mock-data";
+} from "@/lib/api";
 import { formatDistanceToNow } from "date-fns";
 import { createClient } from "@/lib/supabase/client";
 import { toast } from "react-hot-toast";
@@ -60,11 +60,12 @@ export default function AdminDashboard() {
     try {
       const supabase = createClient();
       
-      const safeFetch = async (fn: () => Promise<any>, fallback: any = []) => {
+      const safeFetch = async (fn: () => Promise<any>, fallback: any = [], name: string = "Data") => {
         try {
           return await fn();
-        } catch (e) {
-          console.error(`Fetch failed:`, e);
+        } catch (e: any) {
+          console.error(`Fetch failed for ${name}:`, e);
+          toast.error(`Failed to load ${name}. Retrying later.`);
           return fallback;
         }
       };
@@ -74,18 +75,18 @@ export default function AdminDashboard() {
         gallery, firms, trainingRegs, threads, 
         agm, jobApps, contactSubsResult
       ] = await Promise.all([
-        safeFetch(getAllNews),
-        safeFetch(getAllEvents),
-        safeFetch(getAllMembers),
-        safeFetch(getAllJobs),
-        safeFetch(getAllTraining),
-        safeFetch(getAllGalleryAlbums),
-        safeFetch(getAllFirms),
-        safeFetch(getAllTrainingRegistrations),
-        safeFetch(getAllThreads),
-        safeFetch(getAllAGMRecords),
-        safeFetch(getAllJobApplications),
-        supabase.from('contact_submissions').select('*').order('created_at', { ascending: false }).limit(10)
+        safeFetch(getAllNews, [], "News"),
+        safeFetch(getAllEvents, [], "Events"),
+        safeFetch(getAllMembers, [], "Members"),
+        safeFetch(getAllJobs, [], "Jobs"),
+        safeFetch(getAllTraining, [], "Training"),
+        safeFetch(getAllGalleryAlbums, [], "Gallery"),
+        safeFetch(getAllFirms, [], "Firms"),
+        safeFetch(getAllTrainingRegistrations, [], "Training Registrations"),
+        safeFetch(getAllThreads, [], "Forum Threads"),
+        safeFetch(getAllAGMRecords, [], "AGM Records"),
+        safeFetch(getAllJobApplications, [], "Job Applications"),
+        supabase.from('contact_submissions').select('id, name, subject, created_at, status').order('created_at', { ascending: false }).limit(10)
       ]);
 
       setStats({

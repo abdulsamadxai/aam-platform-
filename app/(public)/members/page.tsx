@@ -4,7 +4,7 @@ import { useState, useMemo, useEffect } from "react";
 import { PageHeader } from "@/components/PageHeader";
 import { ArrowUpDown, Plus, Edit2, Trash2, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { getAllMembers } from "@/lib/mock-data";
+import { getAllMembers } from "@/lib/api";
 import { useAdmin } from "@/lib/admin-context";
 import { EditModal } from "@/components/admin/EditModal";
 import { ConfirmDelete } from "@/components/admin/ConfirmDelete";

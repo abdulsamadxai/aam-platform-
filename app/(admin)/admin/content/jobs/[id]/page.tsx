@@ -7,7 +7,7 @@ import { JobForm } from "@/components/admin/content/JobForm";
 import { JobInput } from "@/lib/validations";
 import { toast } from "react-hot-toast";
 import { Loader2 } from "lucide-react";
-import { getJobById } from "@/lib/mock-data";
+import { getJobById } from "@/lib/api";
 
 export default function EditJobPage({ params }: { params: { id: string } }) {
     const [initialData, setInitialData] = useState<any>(null);

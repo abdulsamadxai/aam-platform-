@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { PageHeader } from "@/components/PageHeader";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import { getActiveJobs, saveJobApplication } from "@/lib/mock-data";
+import { getActiveJobs, saveJobApplication } from "@/lib/api";
 import { EditableBlock } from "@/components/admin/EditableBlock";
 import { EditModal } from "@/components/admin/EditModal";
 import { ConfirmDelete } from "@/components/admin/ConfirmDelete";

@@ -1,4 +1,4 @@
-import { getEventById } from "@/lib/mock-data";
+import { getEventById } from "@/lib/api";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft, Calendar, Clock, MapPin, Share2, Printer } from "lucide-react";

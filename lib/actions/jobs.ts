@@ -4,7 +4,9 @@ import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { jobSchema } from '@/lib/validations'
 
-export async function submitJobListingAction(data: any, isAdding: boolean, id?: string) {
+import { z } from 'zod'
+
+export async function submitJobListingAction(data: z.infer<typeof jobSchema>, isAdding: boolean, id?: string) {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
 

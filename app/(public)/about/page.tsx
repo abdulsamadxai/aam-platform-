@@ -7,7 +7,7 @@ import { EditModal } from "@/components/admin/EditModal";
 import { ContentBlockForm } from "@/components/admin/forms/ContentBlockForm";
 import { useAdmin } from "@/lib/admin-context";
 import { toast } from "react-hot-toast";
-import { getAllPages, updateSitePage } from "@/lib/mock-data";
+import { getAllPages, updateSitePage } from "@/lib/api";
 import { Loader2 } from "lucide-react";
 
 export default function AboutPage() {

@@ -18,7 +18,7 @@ import {
   ArrowRight
 } from "lucide-react";
 import DOMPurify from "isomorphic-dompurify";
-import { saveForumReply } from "@/lib/mock-data";
+import { saveForumReply } from "@/lib/api";
 
 interface ThreadAuthor {
   id?: string;

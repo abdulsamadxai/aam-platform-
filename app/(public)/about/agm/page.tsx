@@ -14,7 +14,7 @@ import { EditableBlock } from "@/components/admin/EditableBlock";
 import { EditModal } from "@/components/admin/EditModal";
 import { ConfirmDelete } from "@/components/admin/ConfirmDelete";
 import { AGMRecordForm } from "@/components/admin/forms/AGMRecordForm";
-import { getAllAGMRecords } from "@/lib/mock-data";
+import { getAllAGMRecords } from "@/lib/api";
 import { toast } from "react-hot-toast";
 import type { AGMRecord } from "@/types";
 import { useAdmin } from "@/lib/admin-context";

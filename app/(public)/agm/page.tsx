@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { PageHeader } from "@/components/PageHeader";
-import { getAllAGMRecords } from "@/lib/mock-data";
+import { getAllAGMRecords } from "@/lib/api";
 import { AGMRecord } from "@/types";
 import { Download, FileText, Loader2 } from "lucide-react";
 import { toast } from "react-hot-toast";

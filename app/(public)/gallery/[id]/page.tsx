@@ -1,6 +1,6 @@
 "use client";
 
-import { getAlbumById } from "@/lib/mock-data";
+import { getAlbumById } from "@/lib/api";
 import { notFound, useParams } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft, Calendar as CalendarIcon, Expand, ImageIcon, Loader2 } from "lucide-react";

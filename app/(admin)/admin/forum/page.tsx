@@ -17,7 +17,7 @@ import {
 import Link from "next/link";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
-import { getAllThreads, deleteForumThread } from "@/lib/mock-data";
+import { getAllThreads, deleteForumThread } from "@/lib/api";
 import { useState, useMemo, useEffect } from "react";
 import { toast } from "react-hot-toast";
 

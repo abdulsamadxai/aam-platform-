@@ -40,8 +40,8 @@ export function Footer() {
             <ul className="space-y-4 text-aam-grey text-xs font-medium uppercase tracking-widest leading-relaxed">
               <li>H. Mialani, 3rd Floor,<br />Malé, Maldives</li>
               <li>
-                <a href="mailto:info@aamaldives.mv" className="hover:text-white transition-colors">
-                  info@aamaldives.mv
+                <a href="mailto:admin@aamaldives.org" className="hover:text-white transition-colors">
+                  admin@aamaldives.org
                 </a>
               </li>
               <li className="text-white">+960 333 4455</li>

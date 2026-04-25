@@ -8,6 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Loader2, Mail, Lock, User } from "lucide-react";
 import Link from "next/link";
 import { useAdmin } from "@/lib/admin-context";
+import { loginAction } from "@/lib/actions/auth";
 
 export default function LoginPage() {
   const [loading, setLoading] = useState(false);
@@ -22,34 +23,17 @@ export default function LoginPage() {
     setLoading(true);
     setMessage(null);
 
-    const supabase = (await import("@/lib/supabase/client")).createClient();
-    const { data, error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
+    const formData = new FormData();
+    formData.append("email", email);
+    formData.append("password", password);
 
-    if (error) {
-      setMessage({ type: 'error', text: error.message });
+    const result = await loginAction(formData);
+
+    if (result?.error) {
+      setMessage({ type: 'error', text: result.error });
       setLoading(false);
-      return;
     }
-
-    if (data.user) {
-      // Check role to redirect appropriately
-      const { data: profile } = await supabase
-        .from('members')
-        .select('role')
-        .eq('id', data.user.id)
-        .single();
-
-      if (profile?.role === 'admin') {
-        login(); // Still sync with local admin context if needed
-        router.push("/admin");
-      } else {
-        router.push("/member/dashboard");
-      }
-    }
-    setLoading(false);
+    // Note: if successful, loginAction will trigger a redirect, so loading stays true.
   };
 
   return (

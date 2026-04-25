@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { getPublishedNews, getUpcomingEvents, getSiteSettings } from "@/lib/mock-data";
+import { getPublishedNews, getUpcomingEvents, getSiteSettings } from "@/lib/api";
 import { format } from "date-fns";
 import { EditableBlock } from "@/components/admin/EditableBlock";
 import { EditModal } from "@/components/admin/EditModal";
@@ -319,7 +319,7 @@ export default function HomePage() {
           initialData={editingNews || undefined}
           onCancel={() => { setEditingNews(null); setIsAddingNews(false); }}
           onSubmit={async (data) => {
-            const { saveNews } = await import('@/lib/mock-data');
+            const { saveNews } = await import('@/lib/api');
             if (isAddingNews) {
               await saveNews({ ...data, is_published: true });
               toast.success("News post created");

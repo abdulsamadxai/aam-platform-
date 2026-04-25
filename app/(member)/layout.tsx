@@ -32,7 +32,6 @@ export default function MemberLayout({ children }: { children: React.ReactNode }
         { name: "Profile", href: "/member/profile", icon: User },
         { name: "Forum", href: "/member/forum", icon: MessageSquare },
         { name: "Documents", href: "/member/documents", icon: FileText },
-        { name: "CPD Logger", href: "/member/cpd", icon: Award },
     ];
 
     return (

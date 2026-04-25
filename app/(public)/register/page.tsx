@@ -6,8 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
-import { saveRegistrationApplication } from "@/lib/mock-data";
-import { RegistrationApplication } from "@/types";
+import { submitRegistrationForm } from "@/lib/actions/forms";
 
 const categories = [
   { id: "professional", title: "Professional Member", desc: "Fully qualified architects with recognised degrees and min. 2 years experience." },
@@ -35,31 +34,25 @@ export default function RegisterPage() {
     e.preventDefault();
     if (!formData.agreed_to_terms) return;
     
-    setSubmitting(true);
-    const supabase = (await import("@/lib/supabase/client")).createClient();
-    
-    const { error } = await supabase
-      .from('membership_applications')
-      .insert({
+    try {
+      await submitRegistrationForm({
         full_name: formData.applicant_name,
         email: formData.email,
         phone: formData.phone,
-        category_applied: formData.category_applied,
+        category_applied: formData.category_applied as any,
         university: formData.university,
         graduation_year: formData.graduation_year,
-        experience_years: formData.experience_years,
+        experience_years: formData.experience_years as any,
         documents_url: formData.documents_url,
-        status: 'new'
       });
-
-    if (error) {
+      
+      setSubmitting(false);
+      setIsSuccess(true);
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    } catch (error) {
       console.error("Submission error:", error);
       setSubmitting(false);
-      return;
     }
-
-    setIsSuccess(true);
-    setSubmitting(false);
   };
 
   if (isSuccess) {

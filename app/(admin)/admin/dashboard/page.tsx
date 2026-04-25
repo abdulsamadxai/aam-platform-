@@ -3,7 +3,7 @@ import Link from "next/link";
 import {
     getAllMembers,
     getAllThreads,
-} from "@/lib/mock-data";
+} from "@/lib/api";
 import { createClient } from "@/lib/supabase/server";
 
 export default async function AdminDashboard() {

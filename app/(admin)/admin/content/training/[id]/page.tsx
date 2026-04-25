@@ -7,7 +7,7 @@ import { TrainingForm } from "@/components/admin/content/TrainingForm";
 import { TrainingInput } from "@/lib/validations";
 import { toast } from "react-hot-toast";
 import { Loader2 } from "lucide-react";
-import { getTrainingById } from "@/lib/mock-data";
+import { getTrainingById } from "@/lib/api";
 
 export default function EditTrainingPage({ params }: { params: { id: string } }) {
     const [initialData, setInitialData] = useState<any>(null);

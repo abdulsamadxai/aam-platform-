@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { getAllAGMRecords, saveAGMRecords } from "@/lib/mock-data";
+import { getAllAGMRecords, saveAGMRecords } from "@/lib/api";
 import { AGMRecord } from "@/types";
 import { EditModal } from "@/components/admin/EditModal";
 import { ConfirmDelete } from "@/components/admin/ConfirmDelete";

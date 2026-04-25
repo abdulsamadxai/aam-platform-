@@ -23,14 +23,18 @@ export async function getPublishedNews(limit?: number): Promise<NewsPost[]> {
     return data || []
 }
 
-export async function getAllNews(): Promise<NewsPost[]> {
+export async function getAllNews(page: number = 1, pageSize: number = 50): Promise<NewsPost[]> {
+    const from = (page - 1) * pageSize;
+    const to = from + pageSize - 1;
+
     const { data, error } = await supabase
         .from('news_posts')
         .select('*')
         .order('created_at', { ascending: false })
+        .range(from, to);
     
-    if (error) throw error
-    return data || []
+    if (error) throw error;
+    return data || [];
 }
 
 export async function saveNews(news: any) {
@@ -71,14 +75,18 @@ export async function getUpcomingEvents(limit?: number): Promise<Event[]> {
     return data || []
 }
 
-export async function getAllEvents(): Promise<Event[]> {
+export async function getAllEvents(page: number = 1, pageSize: number = 50): Promise<Event[]> {
+    const from = (page - 1) * pageSize;
+    const to = from + pageSize - 1;
+
     const { data, error } = await supabase
         .from('events')
         .select('*')
         .order('start_at', { ascending: true })
+        .range(from, to);
     
-    if (error) throw error
-    return data || []
+    if (error) throw error;
+    return data || [];
 }
 
 export async function getEventById(id: string): Promise<Event | null> {
@@ -112,25 +120,33 @@ export async function saveMembers(members: any) {
 }
 
 // --- JOBS ---
-export async function getActiveJobs(): Promise<JobListing[]> {
+export async function getActiveJobs(page: number = 1, pageSize: number = 50): Promise<JobListing[]> {
+    const from = (page - 1) * pageSize;
+    const to = from + pageSize - 1;
+
     const { data, error } = await supabase
         .from('job_listings')
         .select('*')
         .eq('is_active', true)
         .order('created_at', { ascending: false })
+        .range(from, to);
     
-    if (error) throw error
-    return data || []
+    if (error) throw error;
+    return data || [];
 }
 
-export async function getAllJobs(): Promise<JobListing[]> {
+export async function getAllJobs(page: number = 1, pageSize: number = 50): Promise<JobListing[]> {
+    const from = (page - 1) * pageSize;
+    const to = from + pageSize - 1;
+
     const { data, error } = await supabase
         .from('job_listings')
         .select('*')
         .order('created_at', { ascending: false })
+        .range(from, to);
     
-    if (error) throw error
-    return data || []
+    if (error) throw error;
+    return data || [];
 }
 
 export async function getJobById(id: string): Promise<JobListing | null> {
@@ -237,7 +253,6 @@ export async function getAllThreads(): Promise<ForumThread[]> {
     const { data, error } = await supabase
         .from('forum_threads')
         .select('*, author:members(full_name, profile_photo_url)')
-        .is('deleted_at', null)
         .order('created_at', { ascending: false })
     
     if (error) throw error
@@ -249,7 +264,6 @@ export async function getRepliesByThread(threadId: string): Promise<ForumReply[]
         .from('forum_replies')
         .select('*, author:members(full_name, profile_photo_url)')
         .eq('thread_id', threadId)
-        .is('deleted_at', null)
         .order('created_at', { ascending: true })
     
     if (error) throw error
@@ -260,7 +274,6 @@ export async function getAllReplies(): Promise<ForumReply[]> {
     const { data, error } = await supabase
         .from('forum_replies')
         .select('*, author:members(full_name, profile_photo_url)')
-        .is('deleted_at', null)
         .order('created_at', { ascending: false })
     
     if (error) throw error
@@ -273,7 +286,7 @@ export async function updateForumThread(id: string, data: any) {
 }
 
 export async function deleteForumThread(id: string) {
-    const { error } = await supabase.from('forum_threads').update({ deleted_at: new Date().toISOString() }).eq('id', id)
+    const { error } = await supabase.from('forum_threads').delete().eq('id', id)
     if (error) throw error
 }
 
