@@ -44,7 +44,7 @@ export default function NewsPage() {
   const handleNewsSubmit = async (data: any) => {
     try {
       if (isAddingNews) {
-        await saveNews({ ...data, is_published: true });
+        await saveNews({ ...data, published_at: new Date().toISOString() });
         toast.success("News post created");
       } else if (editingNews) {
         await saveNews({ ...editingNews, ...data });
